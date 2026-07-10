@@ -199,37 +199,125 @@ function UserModal({ user, numbers, onClose, onSaved }) {
 }
 
 function NumberModal({ onClose, onSaved }) {
-  const [displayName, setDisplayName] = useState("");
-  const [phoneNumberId, setPhoneNumberId] = useState("");
-  const [waPhone, setWaPhone] = useState("");
-  const [error, setError] = useState("");
-
-  const save = async () => {
-    setError("");
-    try {
-      await api.post("/api/admin/numbers", { displayName, phoneNumberId, waPhone });
-      onSaved();
-    } catch (e) { setError(e.message); }
-  };
-
+  const [mode, setMode] = useState("register"); // register | manual
   return (
     <div className="overlay" onClick={onClose}>
       <div className="card modal" onClick={(e) => e.stopPropagation()}>
         <h3>Adicionar número</h3>
-        <p className="muted" style={{ marginTop: 2 }}>O Phone Number ID aparece no painel da Meta, em WhatsApp → Configuração da API.</p>
-        {error && <div className="error">{error}</div>}
-        <label>Nome interno</label>
-        <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Ex.: Vendas · Letícia" />
-        <label>Phone Number ID</label>
-        <input type="text" value={phoneNumberId} onChange={(e) => setPhoneNumberId(e.target.value)} placeholder="Ex.: 123456789012345" />
-        <label>Número do WhatsApp (só exibição)</label>
-        <input type="text" value={waPhone} onChange={(e) => setWaPhone(e.target.value)} placeholder="Ex.: 5544999999999" />
-        <div className="actions">
-          <button className="btn subtle" onClick={onClose}>Cancelar</button>
-          <button className="btn" onClick={save}>Salvar</button>
+        <div className="tabs" style={{ marginTop: 14, marginBottom: 6 }}>
+          <button className={"btn sm " + (mode === "register" ? "" : "subtle")} onClick={() => setMode("register")}>Registrar novo na Meta</button>
+          <button className={"btn sm " + (mode === "manual" ? "" : "subtle")} onClick={() => setMode("manual")}>Já tenho o ID</button>
         </div>
+        {mode === "register" ? <RegisterWizard onSaved={onSaved} onClose={onClose} /> : <ManualNumber onSaved={onSaved} onClose={onClose} />}
       </div>
     </div>
+  );
+}
+
+function ManualNumber({ onSaved, onClose }) {
+  const [displayName, setDisplayName] = useState("");
+  const [phoneNumberId, setPhoneNumberId] = useState("");
+  const [waPhone, setWaPhone] = useState("");
+  const [error, setError] = useState("");
+  const save = async () => {
+    setError("");
+    try { await api.post("/api/admin/numbers", { displayName, phoneNumberId, waPhone }); onSaved(); }
+    catch (e) { setError(e.message); }
+  };
+  return (
+    <>
+      <p className="muted" style={{ marginTop: 2 }}>Use se você já registrou o número no painel da Meta e só quer conectá-lo aqui.</p>
+      {error && <div className="error">{error}</div>}
+      <label>Nome interno</label>
+      <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Ex.: Vendas · Letícia" />
+      <label>Phone Number ID</label>
+      <input type="text" value={phoneNumberId} onChange={(e) => setPhoneNumberId(e.target.value)} placeholder="Ex.: 123456789012345" />
+      <label>Número do WhatsApp (só exibição)</label>
+      <input type="text" value={waPhone} onChange={(e) => setWaPhone(e.target.value)} placeholder="Ex.: 5544999999999" />
+      <div className="actions">
+        <button className="btn subtle" onClick={onClose}>Cancelar</button>
+        <button className="btn" onClick={save}>Salvar</button>
+      </div>
+    </>
+  );
+}
+
+function RegisterWizard({ onSaved, onClose }) {
+  const [step, setStep] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [cc, setCc] = useState("55");
+  const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [method, setMethod] = useState("SMS");
+  const [phoneNumberId, setPhoneNumberId] = useState("");
+  const [code, setCode] = useState("");
+  const [pin, setPin] = useState("");
+
+  const call = async (fn) => { setError(""); setBusy(true); try { await fn(); } catch (e) { setError(e.message); } finally { setBusy(false); } };
+
+  const start = () => call(async () => {
+    const r = await api.post("/api/admin/numbers/onboard/start", { cc, phone, verifiedName: name, method });
+    setPhoneNumberId(r.phoneNumberId);
+    setStep(2);
+  });
+  const verify = () => call(async () => {
+    await api.post("/api/admin/numbers/onboard/verify", { phoneNumberId, code });
+    setStep(3);
+  });
+  const register = () => call(async () => {
+    await api.post("/api/admin/numbers/onboard/register", { phoneNumberId, pin, displayName: name, waPhone: cc + phone });
+    onSaved();
+  });
+
+  return (
+    <>
+      <p className="muted" style={{ marginTop: 2 }}>Passo {step} de 3 · o número precisa estar livre do WhatsApp e sua conta Meta verificada.</p>
+      {error && <div className="error">{error}</div>}
+
+      {step === 1 && (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: 10 }}>
+            <div><label>DDI</label><input type="text" value={cc} onChange={(e) => setCc(e.target.value)} /></div>
+            <div><label>Número (com DDD, sem DDI)</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="44999999999" /></div>
+          </div>
+          <label>Nome de exibição (passa por revisão da Meta)</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Escola Instructiva" />
+          <label>Receber o código por</label>
+          <select value={method} onChange={(e) => setMethod(e.target.value)}>
+            <option value="SMS">SMS</option>
+            <option value="VOICE">Ligação</option>
+          </select>
+          <div className="actions">
+            <button className="btn subtle" onClick={onClose}>Cancelar</button>
+            <button className="btn" onClick={start} disabled={busy}>{busy ? "Enviando…" : "Enviar código"}</button>
+          </div>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <label>Código recebido no número</label>
+          <input type="text" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Ex.: 123456" />
+          <div className="actions">
+            <button className="btn subtle" onClick={() => setStep(1)}>Voltar</button>
+            <button className="btn" onClick={verify} disabled={busy}>{busy ? "Verificando…" : "Verificar"}</button>
+          </div>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <label>PIN de 6 dígitos (verificação em duas etapas)</label>
+          <input type="text" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Ex.: 000000" />
+          <p className="muted" style={{ fontSize: 12.5 }}>Esse é o PIN configurado na Central de Segurança da Meta. Se ainda não tiver, crie um lá antes.</p>
+          <div className="actions">
+            <button className="btn subtle" onClick={() => setStep(2)}>Voltar</button>
+            <button className="btn" onClick={register} disabled={busy}>{busy ? "Registrando…" : "Registrar número"}</button>
+          </div>
+        </>
+      )}
+    </>
   );
 }
 

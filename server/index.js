@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { read, write, readMessages, appendMessage, updateMessageStatus, id } from "./db.js";
-import { sendText, sendTemplate, listTemplates, uploadMedia, sendMedia, getMediaUrl, fetchMediaBytes } from "./whatsapp.js";
+import { sendText, sendTemplate, listTemplates, uploadMedia, sendMedia, getMediaUrl, fetchMediaBytes, addPhoneNumber, requestCode, verifyCode, registerNumber } from "./whatsapp.js";
 import { checkLogin, logout, requireAuth, requireAdmin, publicUser, hashPassword, userFromToken } from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -536,6 +536,55 @@ app.get("/api/admin/numbers", requireAuth, (req, res) => {
       ownerName: users.find((u) => u.id === n.ownerUserId)?.name || null,
     }))
   );
+});
+
+// Assistente: registrar um número novo direto na Meta (4 passos)
+app.post("/api/admin/numbers/onboard/start", requireAuth, requireAdmin, async (req, res) => {
+  const { cc, phone, verifiedName, method } = req.body || {};
+  if (!cc || !phone || !verifiedName) return res.status(400).json({ error: "Informe DDI, número e nome de exibição." });
+  try {
+    const phoneNumberId = await addPhoneNumber(String(cc).replace(/\D/g, ""), String(phone).replace(/\D/g, ""), verifiedName);
+    await requestCode(phoneNumberId, method === "VOICE" ? "VOICE" : "SMS");
+    res.json({ ok: true, phoneNumberId });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+app.post("/api/admin/numbers/onboard/verify", requireAuth, requireAdmin, async (req, res) => {
+  const { phoneNumberId, code } = req.body || {};
+  if (!phoneNumberId || !code) return res.status(400).json({ error: "Código obrigatório." });
+  try {
+    await verifyCode(phoneNumberId, String(code).replace(/\D/g, ""));
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+app.post("/api/admin/numbers/onboard/register", requireAuth, requireAdmin, async (req, res) => {
+  const { phoneNumberId, pin, displayName, waPhone } = req.body || {};
+  if (!phoneNumberId || !pin) return res.status(400).json({ error: "PIN de 6 dígitos obrigatório." });
+  try {
+    await registerNumber(phoneNumberId, String(pin).replace(/\D/g, ""));
+    // salva no nosso banco
+    const numbers = read("numbers");
+    if (!numbers.some((n) => n.phoneNumberId === phoneNumberId)) {
+      numbers.push({
+        id: id("num"),
+        displayName: displayName || waPhone || phoneNumberId,
+        phoneNumberId,
+        waPhone: waPhone || "",
+        active: true,
+        aiEnabled: false,
+        ownerUserId: null,
+      });
+      write("numbers", numbers);
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
 });
 
 app.post("/api/admin/numbers", requireAuth, requireAdmin, (req, res) => {

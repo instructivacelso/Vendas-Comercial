@@ -110,6 +110,48 @@ export async function sendMedia(phoneNumberId, to, kind, mediaId, caption, filen
   return r.messages?.[0]?.id || null;
 }
 
+// --- Onboarding de número (registrar novo número na Cloud API) ---
+
+// Passo 1: adiciona o número à WABA e devolve o phone_number_id.
+export async function addPhoneNumber(cc, phone, verifiedName) {
+  const wabaId = process.env.WABA_ID;
+  if (!wabaId) throw new Error("WABA_ID não configurado nas variáveis.");
+  const r = await graph(`${GRAPH}/${wabaId}/phone_numbers`, {
+    method: "POST",
+    body: JSON.stringify({ cc, phone_number: phone, verified_name: verifiedName }),
+  });
+  return r.id;
+}
+
+// Passo 2: pede o código de verificação por SMS ou VOICE.
+export async function requestCode(phoneNumberId, method = "SMS", language = "pt_BR") {
+  return graph(`${GRAPH}/${phoneNumberId}/request_code`, {
+    method: "POST",
+    body: JSON.stringify({ code_method: method, language }),
+  });
+}
+
+// Passo 3: confirma o código recebido.
+export async function verifyCode(phoneNumberId, code) {
+  return graph(`${GRAPH}/${phoneNumberId}/verify_code`, {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+// Passo 4: registra o número no Cloud API com o PIN da verificação em duas etapas.
+export async function registerNumber(phoneNumberId, pin) {
+  return graph(`${GRAPH}/${phoneNumberId}/register`, {
+    method: "POST",
+    body: JSON.stringify({ messaging_product: "whatsapp", pin }),
+  });
+}
+
+// Consulta status/nome do número.
+export async function getNumberInfo(phoneNumberId) {
+  return graph(`${GRAPH}/${phoneNumberId}?fields=display_phone_number,verified_name,status,quality_rating`);
+}
+
 // Resolve a URL temporária de uma mídia recebida.
 export async function getMediaUrl(mediaId) {
   const r = await graph(`${GRAPH}/${mediaId}`);
