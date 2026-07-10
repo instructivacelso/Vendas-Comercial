@@ -57,17 +57,18 @@ export default function ConnectModal({ onClose, onConnected }) {
     setBusy(true);
     try {
       const FB = await loadFB(cfg.fbAppId, cfg.fbApiVersion);
-      FB.login(async (response) => {
+      FB.login((response) => {
         const code = response?.authResponse?.code;
         if (!code) { setError("Conexão cancelada ou não autorizada."); setBusy(false); return; }
         const { wabaId, phoneNumberId } = session.current;
         if (!wabaId || !phoneNumberId) { setError("Não recebemos o número da Meta. Refaça o processo até o fim."); setBusy(false); return; }
-        try {
-          const r = await api.post("/api/admin/connect/embedded", { code, wabaId, phoneNumberId });
-          setOk(`Número conectado${r.waPhone ? " (" + r.waPhone + ")" : ""}! Já aparece na lista.`);
-          onConnected && onConnected();
-        } catch (e) { setError(e.message); }
-        finally { setBusy(false); }
+        api.post("/api/admin/connect/embedded", { code, wabaId, phoneNumberId })
+          .then((r) => {
+            setOk(`Número conectado${r.waPhone ? " (" + r.waPhone + ")" : ""}! Já aparece na lista.`);
+            onConnected && onConnected();
+          })
+          .catch((e) => setError(e.message))
+          .finally(() => setBusy(false));
       }, {
         config_id: cfg.fbConfigId,
         response_type: "code",
