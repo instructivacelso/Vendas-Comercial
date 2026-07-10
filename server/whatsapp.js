@@ -82,3 +82,44 @@ function countVars(components = []) {
   const matches = body.text.match(/\{\{\d+\}\}/g) || [];
   return new Set(matches).size;
 }
+
+// --- Mídia ---
+
+// Sobe um arquivo para a Cloud API e devolve o media id.
+export async function uploadMedia(phoneNumberId, buffer, mimeType, filename) {
+  const form = new FormData();
+  form.append("messaging_product", "whatsapp");
+  form.append("file", new Blob([buffer], { type: mimeType }), filename || "arquivo");
+  const res = await fetch(`${GRAPH}/${phoneNumberId}/media`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token()}` },
+    body: form,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body?.error?.message || "Falha no upload da mídia");
+  return body.id;
+}
+
+// Envia mídia (image | audio | document) por um media id já subido.
+export async function sendMedia(phoneNumberId, to, kind, mediaId, caption, filename) {
+  const media = { id: mediaId };
+  if (caption && (kind === "image" || kind === "document")) media.caption = caption;
+  if (kind === "document" && filename) media.filename = filename;
+  const body = { messaging_product: "whatsapp", to, type: kind, [kind]: media };
+  const r = await graph(`${GRAPH}/${phoneNumberId}/messages`, { method: "POST", body: JSON.stringify(body) });
+  return r.messages?.[0]?.id || null;
+}
+
+// Resolve a URL temporária de uma mídia recebida.
+export async function getMediaUrl(mediaId) {
+  const r = await graph(`${GRAPH}/${mediaId}`);
+  return { url: r.url, mime: r.mime_type };
+}
+
+// Baixa os bytes de uma mídia (a URL exige o mesmo token no header).
+export async function fetchMediaBytes(url) {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token()}` } });
+  if (!res.ok) throw new Error("Falha ao baixar a mídia");
+  const buf = Buffer.from(await res.arrayBuffer());
+  return { buffer: buf, mime: res.headers.get("content-type") || "application/octet-stream" };
+}

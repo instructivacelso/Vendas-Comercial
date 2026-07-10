@@ -4,8 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { read, write, readMessages, appendMessage, updateMessageStatus, id } from "./db.js";
-import { sendText, sendTemplate, listTemplates } from "./whatsapp.js";
-import { checkLogin, logout, requireAuth, requireAdmin, publicUser, hashPassword } from "./auth.js";
+import { sendText, sendTemplate, listTemplates, uploadMedia, sendMedia, getMediaUrl, fetchMediaBytes } from "./whatsapp.js";
+import { checkLogin, logout, requireAuth, requireAdmin, publicUser, hashPassword, userFromToken } from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -260,6 +260,87 @@ app.post("/api/conversations/:id/send", requireAuth, async (req, res) => {
 function canDispatch(user) {
   return user.role === "admin" || user.canDispatch === true;
 }
+
+// Nota interna por conversa
+app.patch("/api/conversations/:id/note", requireAuth, (req, res) => {
+  const convs = read("conversations");
+  const conv = convs.find((c) => c.id === req.params.id);
+  if (!conv) return res.status(404).json({ error: "Conversa não encontrada." });
+  if (req.user.role !== "admin" && conv.numberId !== req.user.numberId)
+    return res.status(403).json({ error: "Essa conversa é de outro número." });
+  conv.note = (req.body?.note || "").slice(0, 2000);
+  write("conversations", convs);
+  res.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------------
+// RESPOSTAS RÁPIDAS
+// ---------------------------------------------------------------------------
+app.get("/api/quickreplies", requireAuth, (req, res) => {
+  res.json(read("quickreplies"));
+});
+
+app.post("/api/quickreplies", requireAuth, requireAdmin, (req, res) => {
+  const { title, text } = req.body || {};
+  if (!title || !text) return res.status(400).json({ error: "Título e texto são obrigatórios." });
+  const list = read("quickreplies");
+  const item = { id: id("qr"), title, text };
+  list.push(item);
+  write("quickreplies", list);
+  res.json(item);
+});
+
+app.delete("/api/quickreplies/:id", requireAuth, requireAdmin, (req, res) => {
+  write("quickreplies", read("quickreplies").filter((q) => q.id !== req.params.id));
+  res.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------------
+// MÍDIA
+// ---------------------------------------------------------------------------
+// Proxy de mídia recebida. Aceita token pelo header OU query (?t=) para <img>/<audio>.
+app.get("/api/media/:mediaId", async (req, res) => {
+  const t = (req.headers.authorization || "").replace(/^Bearer /, "") || req.query.t;
+  if (!userFromToken(t)) return res.sendStatus(401);
+  try {
+    const { url } = await getMediaUrl(req.params.mediaId);
+    const { buffer, mime } = await fetchMediaBytes(url);
+    res.setHeader("Content-Type", mime);
+    res.setHeader("Cache-Control", "private, max-age=86400");
+    res.send(buffer);
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+// Enviar mídia numa conversa (só dentro da janela de 24h). Recebe base64.
+app.post("/api/conversations/:id/send-media", requireAuth, async (req, res) => {
+  const conv = read("conversations").find((c) => c.id === req.params.id);
+  if (!conv) return res.status(404).json({ error: "Conversa não encontrada." });
+  if (req.user.role !== "admin" && conv.numberId !== req.user.numberId)
+    return res.status(403).json({ error: "Essa conversa é de outro número." });
+  if (!windowOpen(conv)) return res.status(400).json({ error: "Janela de 24h fechada. Mídia só pode ser enviada com a conversa aberta." });
+
+  const { filename, mimeType, dataBase64, caption } = req.body || {};
+  if (!dataBase64 || !mimeType) return res.status(400).json({ error: "Arquivo inválido." });
+  const kind = mimeType.startsWith("image/") ? "image" : mimeType.startsWith("audio/") ? "audio" : "document";
+  try {
+    const buffer = Buffer.from(dataBase64, "base64");
+    const mediaId = await uploadMedia(conv.phoneNumberId, buffer, mimeType, filename);
+    const waId = await sendMedia(conv.phoneNumberId, conv.contactPhone, kind, mediaId, caption, filename);
+    const preview = kind === "image" ? "📷 Imagem" : kind === "audio" ? "🎤 Áudio" : `📄 ${filename || "Documento"}`;
+    const msg = appendMessage(conv.id, {
+      id: id("m"), direction: "out", type: kind, text: caption || preview,
+      waMessageId: waId, status: "sent", by: req.user.name, at: new Date().toISOString(),
+    });
+    conv.lastMessageAt = msg.at;
+    conv.lastMessagePreview = preview;
+    saveConversation(conv);
+    res.json({ ok: true, message: msg });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
 
 // ---------------------------------------------------------------------------
 // TEMPLATES

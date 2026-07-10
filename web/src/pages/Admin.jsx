@@ -7,11 +7,13 @@ export default function Admin() {
   const [numbers, setNumbers] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [tplError, setTplError] = useState("");
-  const [modal, setModal] = useState(null); // {type:'user'|'number', data}
+  const [replies, setReplies] = useState([]);
+  const [modal, setModal] = useState(null); // {type:'user'|'number'|'reply', data}
 
   const load = async () => {
     setUsers(await api.get("/api/admin/users").catch(() => []));
     setNumbers(await api.get("/api/admin/numbers").catch(() => []));
+    setReplies(await api.get("/api/quickreplies").catch(() => []));
   };
   useEffect(() => {
     load();
@@ -28,7 +30,7 @@ export default function Admin() {
   return (
     <div>
       <div className="tabs">
-        {[["team", "Vendedores"], ["numbers", "Números"], ["templates", "Templates"]].map(([id, label]) => (
+        {[["team", "Vendedores"], ["numbers", "Números"], ["templates", "Templates"], ["replies", "Respostas rápidas"]].map(([id, label]) => (
           <button key={id} className={"btn " + (tab === id ? "" : "subtle") + " sm"} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -112,8 +114,33 @@ export default function Admin() {
         </div>
       )}
 
+      {tab === "replies" && (
+        <div className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 14 }}>
+            <span className="muted">Atalhos de texto que o vendedor insere no chat com um toque.</span>
+            <button className="btn sm" onClick={() => setModal({ type: "reply", data: {} })}>Nova resposta</button>
+          </div>
+          <table>
+            <thead><tr><th>Título</th><th>Texto</th><th></th></tr></thead>
+            <tbody>
+              {replies.map((r) => (
+                <tr key={r.id}>
+                  <td><b>{r.title}</b></td>
+                  <td className="muted">{r.text}</td>
+                  <td style={{ textAlign: "right" }}>
+                    <button className="btn subtle sm" onClick={async () => { if (confirm("Remover?")) { await api.del(`/api/quickreplies/${r.id}`); load(); } }}>Remover</button>
+                  </td>
+                </tr>
+              ))}
+              {replies.length === 0 && <tr><td colSpan="3" className="empty">Nenhuma resposta rápida cadastrada.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {modal?.type === "user" && <UserModal user={modal.data} numbers={numbers} onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
       {modal?.type === "number" && <NumberModal onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
+      {modal?.type === "reply" && <ReplyModal onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
     </div>
   );
 }
@@ -197,6 +224,33 @@ function NumberModal({ onClose, onSaved }) {
         <input type="text" value={phoneNumberId} onChange={(e) => setPhoneNumberId(e.target.value)} placeholder="Ex.: 123456789012345" />
         <label>Número do WhatsApp (só exibição)</label>
         <input type="text" value={waPhone} onChange={(e) => setWaPhone(e.target.value)} placeholder="Ex.: 5544999999999" />
+        <div className="actions">
+          <button className="btn subtle" onClick={onClose}>Cancelar</button>
+          <button className="btn" onClick={save}>Salvar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReplyModal({ onClose, onSaved }) {
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [error, setError] = useState("");
+  const save = async () => {
+    setError("");
+    try { await api.post("/api/quickreplies", { title, text }); onSaved(); }
+    catch (e) { setError(e.message); }
+  };
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="card modal" onClick={(e) => e.stopPropagation()}>
+        <h3>Nova resposta rápida</h3>
+        {error && <div className="error">{error}</div>}
+        <label>Título</label>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex.: Saudação" />
+        <label>Texto</label>
+        <textarea style={{ height: 90 }} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: Olá! Aqui é da Escola Instructiva, tudo bem?" />
         <div className="actions">
           <button className="btn subtle" onClick={onClose}>Cancelar</button>
           <button className="btn" onClick={save}>Salvar</button>

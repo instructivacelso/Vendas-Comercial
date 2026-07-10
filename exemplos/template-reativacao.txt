@@ -1,0 +1,36 @@
+TEMPLATE DE EXEMPLO — pronto para cadastrar na Meta
+====================================================
+
+Cadastre em: WhatsApp Manager → Modelos de mensagem → Criar modelo.
+
+Nome do modelo:      reativacao_acelerar
+Categoria:           Marketing
+Idioma:              Português (BR) — pt_BR
+
+--- CABEÇALHO (opcional, tipo Texto) ---
+Escola Instructiva
+
+--- CORPO ---
+Oi {{1}}, tudo bem? Vi que você demonstrou interesse no {{2}} e separei
+uma condição especial pra você começar ainda hoje. Posso te passar os detalhes?
+
+--- BOTÕES (Resposta rápida) ---
+Botão 1: Quero saber mais
+Botão 2: Agora não
+
+--- EXEMPLOS DAS VARIÁVEIS (obrigatório na Meta) ---
+{{1}} = João
+{{2}} = ACELERAR+
+
+
+Regras que este exemplo já respeita (e que a Meta cobra):
+- Toda variável {{n}} tem valor de exemplo preenchido.
+- Nenhuma variável fica no começo nem no fim do corpo
+  (começa em "Oi" e termina em "?").
+- Duas variáveis, na ordem: {{1}} = nome do cliente, {{2}} = programa/curso.
+
+No sistema, ao criar a campanha, o CSV preenche essas variáveis:
+a coluna "1" vira {{1}} e a coluna "2" vira {{2}}.
+
+Depois de APROVADO pela Meta, o template aparece sozinho no seletor de
+campanha e na aba Templates.

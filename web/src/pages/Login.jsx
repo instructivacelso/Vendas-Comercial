@@ -26,7 +26,7 @@ export default function Login({ onLogin }) {
     <div className="login-wrap">
       <div className="card login-card">
         <div className="brand">
-          <div className="logo"><Send size={19} /></div>
+          <img src="/logo.png" alt="Instructiva" className="logo-img" />
           <div className="wm"><b>Instructiva</b><span>Vendas</span></div>
         </div>
         <p className="muted" style={{ marginTop: 0 }}>Entre com sua conta de vendedor.</p>

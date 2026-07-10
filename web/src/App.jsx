@@ -46,7 +46,7 @@ export default function App() {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="logo"><Send size={19} /></div>
+          <img src="/logo.png" alt="Instructiva" className="logo-img" />
           <div className="wm"><b>Instructiva</b><span>Vendas</span></div>
         </div>
         <nav className="nav">
