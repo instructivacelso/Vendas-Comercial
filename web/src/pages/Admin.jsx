@@ -27,7 +27,7 @@ export default function Admin() {
 
   return (
     <div>
-      <div className="nav" style={{ flexDirection: "row", gap: 8, marginBottom: 18 }}>
+      <div className="tabs">
         {[["team", "Vendedores"], ["numbers", "Números"], ["templates", "Templates"]].map(([id, label]) => (
           <button key={id} className={"btn " + (tab === id ? "" : "subtle") + " sm"} onClick={() => setTab(id)}>{label}</button>
         ))}

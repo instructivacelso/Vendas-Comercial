@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Send } from "lucide-react";
 import { api, setToken } from "../api.js";
 
 export default function Login({ onLogin }) {
@@ -24,7 +25,10 @@ export default function Login({ onLogin }) {
   return (
     <div className="login-wrap">
       <div className="card login-card">
-        <div className="brand"><b>Instructiva</b><span>·vendas</span></div>
+        <div className="brand">
+          <div className="logo"><Send size={19} /></div>
+          <div className="wm"><b>Instructiva</b><span>Vendas</span></div>
+        </div>
         <p className="muted" style={{ marginTop: 0 }}>Entre com sua conta de vendedor.</p>
         {error && <div className="error">{error}</div>}
         <label>E-mail</label>

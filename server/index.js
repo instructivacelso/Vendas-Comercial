@@ -152,6 +152,41 @@ app.post("/api/logout", requireAuth, (req, res) => {
 
 app.get("/api/me", requireAuth, (req, res) => res.json(publicUser(req.user)));
 
+// Números do Painel
+app.get("/api/stats", requireAuth, (req, res) => {
+  const numbers = read("numbers");
+  const users = read("users");
+  const allConvs = read("conversations");
+  let camps = read("campaigns");
+  const isAdmin = req.user.role === "admin";
+
+  const myNumbers = isAdmin ? numbers : numbers.filter((n) => n.id === req.user.numberId);
+  let convs = isAdmin ? allConvs : allConvs.filter((c) => c.numberId === req.user.numberId);
+  if (!isAdmin) camps = camps.filter((c) => c.numberId === req.user.numberId);
+
+  const startToday = new Date();
+  startToday.setHours(0, 0, 0, 0);
+  const sentToday = camps
+    .filter((c) => new Date(c.createdAt) >= startToday)
+    .reduce((a, c) => a + (c.sent || 0), 0);
+
+  const perNumber = myNumbers.map((n) => {
+    const cs = allConvs.filter((c) => c.numberId === n.id);
+    return { name: n.displayName, conversations: cs.length, open: cs.filter(windowOpen).length };
+  });
+
+  res.json({
+    isAdmin,
+    conversations: convs.length,
+    windowsOpen: convs.filter(windowOpen).length,
+    campaignsRunning: camps.filter((c) => c.status === "running").length,
+    sentToday,
+    numbersActive: myNumbers.filter((n) => n.active).length,
+    sellers: users.filter((u) => u.role === "seller").length,
+    perNumber,
+  });
+});
+
 // ---------------------------------------------------------------------------
 // CONVERSAS
 // ---------------------------------------------------------------------------
