@@ -3,8 +3,8 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { read, write, readMessages, appendMessage, updateMessageStatus, id } from "./db.js";
-import { sendText, sendTemplate, listTemplates, uploadMedia, sendMedia, getMediaUrl, fetchMediaBytes, addPhoneNumber, requestCode, verifyCode, registerNumber } from "./whatsapp.js";
+import { read, write, readMessages, appendMessage, updateMessageStatus, id, readObject, writeObject } from "./db.js";
+import { sendText, sendTemplate, listTemplates, uploadMedia, sendMedia, getMediaUrl, fetchMediaBytes, addPhoneNumber, requestCode, verifyCode, registerNumber, getNumberInfo, exchangeCode, subscribeApp } from "./whatsapp.js";
 import { checkLogin, logout, requireAuth, requireAdmin, publicUser, hashPassword, userFromToken } from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -536,6 +536,49 @@ app.get("/api/admin/numbers", requireAuth, (req, res) => {
       ownerName: users.find((u) => u.id === n.ownerUserId)?.name || null,
     }))
   );
+});
+
+// Config pública do front para o Embedded Signup (App ID e config são públicos).
+app.get("/api/config", requireAuth, requireAdmin, (req, res) => {
+  const settings = readObject("settings");
+  res.json({
+    fbAppId: process.env.FB_APP_ID || "",
+    fbConfigId: process.env.FB_CONFIG_ID || "",
+    fbApiVersion: process.env.FB_API_VERSION || "v22.0",
+    connected: !!(settings.metaToken || process.env.META_TOKEN),
+    wabaId: settings.wabaId || process.env.WABA_ID || "",
+  });
+});
+
+// Finaliza o Embedded Signup: troca o código, salva token/WABA, assina o webhook e cadastra o número.
+app.post("/api/admin/connect/embedded", requireAuth, requireAdmin, async (req, res) => {
+  const { code, wabaId: waba, phoneNumberId, displayName } = req.body || {};
+  if (!code || !waba || !phoneNumberId) return res.status(400).json({ error: "Conexão incompleta. Refaça o processo pela Meta." });
+  try {
+    const accessToken = await exchangeCode(code);
+    writeObject("settings", { ...readObject("settings"), metaToken: accessToken, wabaId: waba });
+    // faz o webhook começar a receber daquela conta
+    try { await subscribeApp(waba); } catch (e) { console.warn("subscribe_apps:", e.message); }
+    // busca dados do número e salva
+    let info = {};
+    try { info = await getNumberInfo(phoneNumberId); } catch {}
+    const numbers = read("numbers");
+    if (!numbers.some((n) => n.phoneNumberId === phoneNumberId)) {
+      numbers.push({
+        id: id("num"),
+        displayName: displayName || info.verified_name || info.display_phone_number || phoneNumberId,
+        phoneNumberId,
+        waPhone: (info.display_phone_number || "").replace(/\D/g, ""),
+        active: true,
+        aiEnabled: false,
+        ownerUserId: null,
+      });
+      write("numbers", numbers);
+    }
+    res.json({ ok: true, displayName: info.verified_name || null, waPhone: info.display_phone_number || null });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
 });
 
 // Assistente: registrar um número novo direto na Meta (4 passos)

@@ -211,6 +211,27 @@ tr:last-child td { border-bottom: 0; }
 
 .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
 
+/* ---------- Connect (Embedded Signup) ---------- */
+.connect-modal { width: 860px; max-width: 100%; padding: 0; overflow: hidden; border: 0; background: #10141b; color: #eef1f6; }
+.connect-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.connect-left { padding: 40px 34px; display: flex; flex-direction: column; justify-content: center; }
+.connect-left .wa { width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, #25d366, #128c4b); display: grid; place-items: center; color: #fff; margin-bottom: 22px; }
+.connect-left h3 { font-size: 24px; margin: 0 0 12px; color: #fff; }
+.connect-left p { color: #9aa3b2; line-height: 1.55; margin: 0; }
+.connect-right { padding: 34px; background: #151a23; border-left: 1px solid rgba(255,255,255,0.06); }
+.connect-right h4 { text-align: center; font-size: 17px; margin: 0 0 20px; color: #fff; }
+.req { display: flex; gap: 13px; padding: 14px 16px; background: #1c222d; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 12px; }
+.req svg { color: #25d366; flex-shrink: 0; margin-top: 1px; }
+.req b { display: block; color: #fff; font-size: 14.5px; margin-bottom: 3px; }
+.req span { color: #8b95a5; font-size: 12.5px; line-height: 1.4; }
+.connect-foot { padding: 0 34px 30px; display: flex; justify-content: flex-end; gap: 12px; }
+.btn.wa { background: #fff; color: #10141b; box-shadow: none; padding: 13px 24px; font-size: 15px; }
+.btn.wa:hover { background: #eef1f6; }
+.connect-note { background: rgba(233,180,60,0.12); color: #e9b43c; padding: 12px 14px; border-radius: 10px; font-size: 13px; margin: 0 34px 16px; }
+.connect-ok { background: rgba(37,211,102,0.12); color: #25d366; padding: 12px 14px; border-radius: 10px; font-size: 13.5px; margin: 0 34px 16px; }
+.connect-close { position: absolute; top: 18px; right: 20px; background: none; border: 0; color: #8b95a5; font-size: 22px; cursor: pointer; z-index: 2; }
+@media (max-width: 760px) { .connect-grid { grid-template-columns: 1fr; } .connect-left { padding: 30px 24px; } }
+
 /* ---------- Inbox extras ---------- */
 .conv-search { padding: 12px 14px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--card); z-index: 2; }
 .conv-search input { padding: 9px 12px; }

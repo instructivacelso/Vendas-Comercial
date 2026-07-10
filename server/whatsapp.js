@@ -1,7 +1,27 @@
+import { readObject } from "./db.js";
+
 const GRAPH = `https://graph.facebook.com/${process.env.GRAPH_VERSION || "v21.0"}`;
 
 function token() {
-  return process.env.META_TOKEN || "";
+  return readObject("settings").metaToken || process.env.META_TOKEN || "";
+}
+
+function wabaId() {
+  return readObject("settings").wabaId || process.env.WABA_ID || "";
+}
+
+// Troca o código do Embedded Signup por um token de acesso do negócio.
+export async function exchangeCode(code) {
+  const url = `${GRAPH}/oauth/access_token?client_id=${process.env.FB_APP_ID}&client_secret=${process.env.FB_APP_SECRET}&code=${encodeURIComponent(code)}`;
+  const res = await fetch(url);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body?.error?.message || "Falha ao trocar o código da conexão.");
+  return body.access_token;
+}
+
+// Assina o app aos eventos daquela WABA (faz o webhook começar a receber).
+export async function subscribeApp(businessAccountId) {
+  return graph(`${GRAPH}/${businessAccountId}/subscribed_apps`, { method: "POST" });
 }
 
 async function graph(url, options = {}) {
@@ -60,10 +80,10 @@ export async function sendTemplate(phoneNumberId, to, templateName, lang = "pt_B
 
 // Lista templates aprovados da WABA.
 export async function listTemplates() {
-  const wabaId = process.env.WABA_ID;
-  if (!wabaId) return [];
+  const id = wabaId();
+  if (!id) return [];
   const r = await graph(
-    `${GRAPH}/${wabaId}/message_templates?limit=200&fields=name,status,category,language,components`
+    `${GRAPH}/${id}/message_templates?limit=200&fields=name,status,category,language,components`
   );
   return (r.data || []).map((t) => ({
     name: t.name,
@@ -114,9 +134,9 @@ export async function sendMedia(phoneNumberId, to, kind, mediaId, caption, filen
 
 // Passo 1: adiciona o número à WABA e devolve o phone_number_id.
 export async function addPhoneNumber(cc, phone, verifiedName) {
-  const wabaId = process.env.WABA_ID;
-  if (!wabaId) throw new Error("WABA_ID não configurado nas variáveis.");
-  const r = await graph(`${GRAPH}/${wabaId}/phone_numbers`, {
+  const id = wabaId();
+  if (!id) throw new Error("WABA não configurada. Conecte pela Meta primeiro.");
+  const r = await graph(`${GRAPH}/${id}/phone_numbers`, {
     method: "POST",
     body: JSON.stringify({ cc, phone_number: phone, verified_name: verifiedName }),
   });

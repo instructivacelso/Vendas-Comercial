@@ -64,3 +64,18 @@ export function updateMessageStatus(convId, waMessageId, status) {
 export function id(prefix = "id") {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
+
+// Armazenamento de um objeto único (ex.: configurações da conexão Meta).
+export function readObject(name, def = {}) {
+  try {
+    return JSON.parse(fs.readFileSync(file(name), "utf8"));
+  } catch {
+    return def;
+  }
+}
+
+export function writeObject(name, obj) {
+  const tmp = file(name) + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(obj, null, 2));
+  fs.renameSync(tmp, file(name));
+}

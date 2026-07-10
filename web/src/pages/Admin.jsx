@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
+import ConnectModal from "./Connect.jsx";
 
 export default function Admin() {
   const [tab, setTab] = useState("team");
@@ -71,8 +72,11 @@ export default function Admin() {
       {tab === "numbers" && (
         <div className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 14 }}>
-            <span className="muted">Cadastre cada número conforme registra na Meta.</span>
-            <button className="btn sm" onClick={() => setModal({ type: "number", data: {} })}>Adicionar número</button>
+            <span className="muted">Conecte o número oficial pela Meta ou cadastre um já registrado.</span>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn sm" onClick={() => setModal({ type: "connect" })}>Conectar número oficial</button>
+              <button className="btn subtle sm" onClick={() => setModal({ type: "number", data: {} })}>Adicionar manualmente</button>
+            </div>
           </div>
           <table>
             <thead><tr><th>Nome</th><th>Phone Number ID</th><th>Vendedor</th><th>IA</th><th></th></tr></thead>
@@ -141,6 +145,7 @@ export default function Admin() {
       {modal?.type === "user" && <UserModal user={modal.data} numbers={numbers} onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
       {modal?.type === "number" && <NumberModal onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
       {modal?.type === "reply" && <ReplyModal onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}
+      {modal?.type === "connect" && <ConnectModal onClose={() => setModal(null)} onConnected={() => load()} />}
     </div>
   );
 }
