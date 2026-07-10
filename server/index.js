@@ -458,4 +458,25 @@ app.get("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
+
+// Garante que sempre exista um gestor para entrar, sem depender de rodar o seed manual.
+function ensureAdmin() {
+  const users = read("users");
+  if (users.length) return;
+  const email = process.env.ADMIN_EMAIL || "admin@instructiva.com.br";
+  const password = process.env.ADMIN_PASSWORD || "instructiva";
+  users.push({
+    id: id("user"),
+    name: "Gestor",
+    email,
+    passwordHash: hashPassword(password),
+    role: "admin",
+    numberId: null,
+    canDispatch: true,
+  });
+  write("users", users);
+  console.log(`Gestor criado no primeiro acesso: ${email} (troque a senha depois).`);
+}
+ensureAdmin();
+
 app.listen(PORT, () => console.log(`Instructiva Vendas rodando na porta ${PORT}`));
