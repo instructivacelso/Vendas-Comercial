@@ -659,6 +659,30 @@ app.delete("/api/admin/numbers/:id", requireAuth, requireAdmin, (req, res) => {
 // Frontend estático (build do Vite)
 // ---------------------------------------------------------------------------
 const dist = path.join(__dirname, "..", "web", "dist");
+// Página de Política de Privacidade (necessária para publicar o app na Meta)
+app.get("/privacidade", (req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de Privacidade — Instructiva Vendas</title>
+<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#182823;line-height:1.6}h1{color:#14a89e}h2{margin-top:28px}small{color:#6f7d76}</style>
+</head><body>
+<h1>Política de Privacidade</h1>
+<small>Escola Instructiva · última atualização: julho de 2026</small>
+<p>Esta política descreve como a Escola Instructiva trata os dados no uso do sistema de atendimento e vendas via WhatsApp.</p>
+<h2>Dados que tratamos</h2>
+<p>Coletamos apenas os dados necessários ao atendimento: nome, número de telefone e o conteúdo das mensagens trocadas entre a empresa e o cliente pelo WhatsApp Business Platform (API oficial da Meta).</p>
+<h2>Como usamos</h2>
+<p>Os dados são usados exclusivamente para atendimento, suporte e comunicação comercial solicitada pelo cliente. Não vendemos nem compartilhamos dados com terceiros para fins publicitários.</p>
+<h2>Armazenamento e segurança</h2>
+<p>As mensagens e informações de contato ficam armazenadas em ambiente controlado e de acesso restrito à equipe autorizada.</p>
+<h2>Seus direitos</h2>
+<p>O titular pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelos canais de atendimento da Escola Instructiva.</p>
+<h2>Contato</h2>
+<p>Dúvidas sobre esta política: entre em contato pelos canais oficiais da Escola Instructiva (escolainstructiva.com.br).</p>
+</body></html>`);
+});
+
 app.use(express.static(dist));
 app.get("*", (req, res) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/webhook")) return res.sendStatus(404);

@@ -1,11 +1,25 @@
 {
-  "name": "instructiva-site",
-  "version": "3.0.0",
-  "private": true,
+  "name": "instructiva-vendas",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Inbox de vendas multi-agente WhatsApp (Cloud API) - Escola Instructiva",
   "scripts": {
-    "start": "node server.js"
+    "dev:server": "node --watch server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "seed": "node server/seed.js"
   },
   "dependencies": {
-    "express": "^4.22.2"
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "lucide-react": "^0.408.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.0"
   }
 }
