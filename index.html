@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escola Instructiva</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/popup.css">
+<link rel="stylesheet" href="css/course-sales.css">
+<link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon-180.png">
+</head>
+<body>
+
+<button type="button" class="whatsapp-float" id="waToggle" aria-label="Falar com o suporte pelo WhatsApp">
+  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.004 3C9.373 3 4 8.373 4 15.004c0 2.647.86 5.096 2.318 7.077L4.6 28.4l6.5-1.677a11.93 11.93 0 0 0 4.9 1.043h.004c6.63 0 12.004-5.373 12.004-12.004C28.008 8.373 22.635 3 16.004 3Zm7.03 17.06c-.297.833-1.47 1.526-2.404 1.727-.639.136-1.473.245-4.28-.92-3.59-1.49-5.9-5.14-6.08-5.38-.176-.24-1.454-1.938-1.454-3.696 0-1.757.918-2.62 1.245-2.98.297-.325.647-.407.863-.407.216 0 .432.002.62.011.216.01.482-.082.754.575.297.72.008 2.06.008 2.06s-.44.505-.19 1.166c.43 1.14 1.87 2.5 2.05 2.68.18.18 1.6 1.62 2.79 2.06.66.244 1.09.207 1.33-.05.24-.257.68-.83.87-1.08.19-.25.38-.207.63-.13.25.08 1.58.76 1.86.93.28.17.46.256.53.396.07.14.07.81-.227 1.643Z"/></svg>
+  <span class="wa-label">Falar com o suporte</span>
+</button>
+
+<div class="wa-popup-overlay" id="waPopupOverlay">
+  <div class="wa-popup" role="dialog" aria-modal="true">
+    <button class="wa-popup-close" id="waPopupClose" aria-label="Fechar">&times;</button>
+    <h3>Falar com o suporte</h3>
+    <div class="wa-hours">Atendimento: Segunda a Sexta, das 08:00 às 18:00</div>
+
+    <div class="wa-step-label">Escolha uma de nossas atendentes!!</div>
+    <div class="wa-choice-row" id="waAttendantRow">
+      <div class="wa-choice" data-name="Letícia" data-phone="5544997085134">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/leticia.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Letícia</div>
+      </div>
+      <div class="wa-choice" data-name="Lilian" data-phone="5544997005267">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/lilian.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Lilian</div>
+      </div>
+      <div class="wa-choice" data-name="Vitória" data-phone="5544997267313">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/vitoria.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Vitória</div>
+      </div>
+      <div class="wa-choice" data-name="Rayssa" data-phone="5544997224134">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/rayssa.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Rayssa</div>
+      </div>
+    </div>
+
+    <div class="wa-step-label">Como podemos te ajudar?</div>
+    <div class="wa-reason-row" id="waReasonRow">
+      <div class="wa-reason" data-reason="Estou com problema de acesso à plataforma">Problema com acesso</div>
+      <div class="wa-reason" data-reason="Quero adquirir um treinamento">Quero adquirir um treinamento</div>
+    </div>
+
+    <button class="wa-submit-btn" id="waSubmit" disabled>
+      <span>Continuar no WhatsApp</span>
+    </button>
+    <p class="wa-fine-print">Fora do horário de atendimento? Pode chamar mesmo assim — respondemos assim que possível.</p>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var toggleBtn = document.getElementById('waToggle');
+    var overlay = document.getElementById('waPopupOverlay');
+    var closeBtn = document.getElementById('waPopupClose');
+    var attendantRow = document.getElementById('waAttendantRow');
+    var reasonRow = document.getElementById('waReasonRow');
+    var submitBtn = document.getElementById('waSubmit');
+
+    var selectedName = null, selectedPhone = null, selectedReason = null;
+
+    function updateSubmitState(){
+      submitBtn.disabled = !(selectedPhone && selectedReason);
+    }
+
+    toggleBtn.addEventListener('click', function(){
+      overlay.classList.add('show');
+    });
+    closeBtn.addEventListener('click', function(){
+      overlay.classList.remove('show');
+    });
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay){ overlay.classList.remove('show'); }
+    });
+
+    attendantRow.querySelectorAll('.wa-choice').forEach(function(el){
+      el.addEventListener('click', function(){
+        attendantRow.querySelectorAll('.wa-choice').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedName = el.dataset.name;
+        selectedPhone = el.dataset.phone;
+        updateSubmitState();
+      });
+    });
+
+    reasonRow.querySelectorAll('.wa-reason').forEach(function(el){
+      el.addEventListener('click', function(){
+        reasonRow.querySelectorAll('.wa-reason').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedReason = el.dataset.reason;
+        updateSubmitState();
+      });
+    });
+
+    submitBtn.addEventListener('click', function(){
+      if(!selectedPhone || !selectedReason) return;
+      var msg = 'Oi, ' + selectedName + '! Vim pelo site da Escola Instructiva. ' + selectedReason + '.';
+      var url = 'https://wa.me/' + selectedPhone + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+      overlay.classList.remove('show');
+    });
+  })();
+</script>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="index.html">
+        <img class="mark" src="assets/img/logo-instructiva.png" alt="Escola Instructiva">
+        Escola <b>Instructiva</b>
+      </a>
+      <div class="nav-links">
+        <a href="cursos.html">cursos</a>
+        <a href="index.html#professor">sobre</a>
+        <a href="index.html#depoimentos">depoimentos</a>
+        <a href="index.html#faq">faq</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm">Área do aluno</a>
+        <a href="cursos.html" class="btn btn-cta btn-sm">Matricule-se</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="cat-quicknav">
+  <div class="wrap cat-quicknav-inner">
+    <a href="cursos.html?cat=Televisores">Televisores</a>
+    <a href="cursos.html?cat=Fontes%20Chaveadas">Fontes Chaveadas</a>
+    <a href="cursos.html?cat=Tecnologias%20Inverter">Tecnologias Inverter</a>
+    <a href="cursos.html?cat=Eletrônica">Eletrônica</a>
+    <a href="cursos.html?cat=Amplificadores">Amplificadores</a>
+    <a href="cursos.html?cat=Odonto%20Médico">Odonto Médico</a>
+    <a href="cursos.html">Ver tudo</a>
+  </div>
+</div>
+
+<section class="promo-mega-hero">
+  <div class="wrap">
+    <div class="promo-mega-badge">🔥 Lançamento oficial</div>
+    <h2>Especialista em Reparo de <em>Esteiras de Academia</em>.</h2>
+    <p>Curso completo de manutenção de esteiras de academia, home fitness e ergométricas — com bônus exclusivos pelo preço de lançamento.</p>
+    <a href="promo-esteiras.html" class="btn btn-cta promo-mega-cta">Ver oferta completa →</a>
+  </div>
+</section>
+
+<div class="marquee-section">
+  <div class="wrap" style="overflow:hidden;">
+    <div class="marquee-inner">
+      <span class="tag">Ex-assistência técnica autorizada</span><span class="sep">/</span>
+      <span>Philips</span><span class="sep">/</span><span>Toshiba</span><span class="sep">/</span><span>LG</span><span class="sep">/</span>
+      <span>Samsung</span><span class="sep">/</span><span>Sony</span><span class="sep">/</span><span>JVC</span><span class="sep">/</span><span>Gradiente</span><span class="sep">/</span>
+      <span class="tag">Ex-assistência técnica autorizada</span><span class="sep">/</span>
+      <span>Philips</span><span class="sep">/</span><span>Toshiba</span><span class="sep">/</span><span>LG</span><span class="sep">/</span>
+      <span>Samsung</span><span class="sep">/</span><span>Sony</span><span class="sep">/</span><span>JVC</span><span class="sep">/</span><span>Gradiente</span><span class="sep">/</span>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">O que você recebe</div>
+      <h2>Não é só videoaula solta.</h2>
+      <p>Todo curso da Instructiva já vem com isso incluso, sem custo extra.</p>
+    </div>
+    <div class="value-grid">
+      <div class="value-card value-card-highlight"><div class="num">01</div><h4>Acesso vitalício</h4><p>Assista quantas vezes quiser, pro resto da vida, sem prazo de expiração — o curso é seu.</p></div><div class="value-card"><div class="num">02</div><h4>Certificado reconhecido</h4><p>Todo curso emite certificado de conclusão pra você usar no currículo.</p></div><div class="value-card"><div class="num">03</div><h4>Suporte direto</h4><p>Fale com professores e outros alunos pra resolver o defeito que travou.</p></div><div class="value-card"><div class="num">04</div><h4>Atualizações inclusas</h4><p>Quando o curso ganha conteúdo novo, você recebe de graça, sem pagar de novo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-black">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Curso em destaque</div>
+      <h2>Comece pelo curso que mais forma especialista.</h2>
+      <p>Se você só vai começar por um, comece por este — é o que mais aparece na bancada de qualquer técnico.</p>
+    </div>
+    <div class="offer-card">
+      <div class="offer-main">
+        <div class="offer-tag">Mais procurado</div>
+        <h3>Especialista em Manutenção de Inversores Solares</h3>
+        <p class="offer-desc">On-grid, off-grid, híbridos e controladores de carga, com módulo bônus de eletrônica base e precificação de serviços.</p>
+        <ul class="offer-list">
+          <li>Inversores on-grid, off-grid, híbridos e controladores de carga PWM/MPPT</li><li>Diagnóstico, substituição de componentes e reparo completo</li><li>Onde encontrar componentes originais e como precificar o serviço</li><li>Bônus: curso completo de eletrônica analógica e digital</li>
+        </ul>
+      </div>
+      <div class="offer-buy">
+        <div class="lbl">Investimento único</div>
+        <div class="offer-price">R$ 1.697<span>,00</span></div>
+        <div class="offer-installments">ou 12x de R$ 169,47 no cartão</div>
+        <a href="cursos/especialista-em-manutencao-de-inversores-solares.html" class="btn btn-cta offer-cta">Ver curso completo</a>
+        <div class="offer-guarantee"><i></i>7 dias de garantia — não gostou, devolvemos tudo</div>
+        <div class="offer-pay"><span>PIX</span><span>Boleto</span><span>Cartão</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="trilhas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Trilhas de especialização</div>
+      <h2>Escolha o equipamento. Nós ensinamos o resto.</h2>
+      <p>Clique na categoria que você quer dominar e veja todos os cursos daquela área.</p>
+    </div>
+    <div class="cat-grid">
+      <a class="cat-card" href="cursos.html?cat=Televisores" style="background-image:url('assets/img/cursos/televisores.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Televisores</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 1.497,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Fontes%20Chaveadas" style="background-image:url('assets/img/cursos/fontes-chaveadas.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Fontes Chaveadas</h3>
+          <div class="cat-meta"><span>4 cursos</span><span class="cat-price">a partir de R$ 397,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Tecnologias%20Inverter" style="background-image:url('assets/img/cursos/tecnologias-inverter.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Tecnologias Inverter</h3>
+          <div class="cat-meta"><span>2 cursos</span><span class="cat-price">a partir de R$ 997,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Eletr%C3%B4nica" style="background-image:url('assets/img/cursos/emac.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Eletrônica</h3>
+          <div class="cat-meta"><span>7 cursos</span><span class="cat-price">a partir de R$ 397,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Amplificadores" style="background-image:url('assets/img/cursos/amplificadores-de-audio.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Amplificadores</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 1.497,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Ind%C3%BAstria" style="background-image:url('assets/img/cursos/softstarter.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Indústria</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 1.697,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Inversor%20Solar" style="background-image:url('assets/img/cursos/inversores-solares.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Inversor Solar</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 1.697,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Academia" style="background-image:url('assets/img/cursos/esteira-de-academias.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Academia</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 1.697,00</span></div>
+        </div>
+      </a>
+      <a class="cat-card" href="cursos.html?cat=Odonto%20M%C3%A9dico" style="background-image:url('assets/img/cursos/odonto-esteticos.jpg');">
+        <div class="cat-card-overlay"></div>
+        <img class="cat-card-logo" src="assets/img/logo-instructiva.png" alt="">
+        <div class="cat-card-content">
+          <h3>Odonto Médico</h3>
+          <div class="cat-meta"><span>1 curso</span><span class="cat-price">a partir de R$ 2.497,00</span></div>
+        </div>
+      </a>
+    </div></div>
+  </div>
+</section>
+
+<section id="professor" class="bg-paper2">
+  <div class="wrap prof">
+    <div class="prof-frame" style="background-image:url('assets/img/professor-celso.jpg'); background-size:cover; background-position:top center;">
+    </div>
+    <div class="prof-copy">
+      <div class="eyebrow">Quem ensina</div>
+      <h2 style="margin:12px 0 20px; text-transform:uppercase;">38 anos de bancada, não de slide.</h2>
+      <p class="quote">"Não formamos quem decora fórmula. Formamos quem chega no defeito, mede, entende e resolve."</p>
+      <div class="prof-signature">
+        <strong>Prof. Celso Muniz</strong>
+        <span>Fundador da Escola Instructiva</span>
+      </div>
+      <div class="prof-facts">
+        <div class="prof-fact"><span class="dot"></span><span>Ex-autorizado Philips, Toshiba, LG, Samsung, Sony, JVC e Gradiente</span></div>
+        <div class="prof-fact"><span class="dot"></span><span>Professor do SENAI em Eletrônica, Eletrotécnica e Mecatrônica</span></div>
+        <div class="prof-fact"><span class="dot"></span><span>Coautor de 5 livros técnicos — Fontes Chaveadas e Eletrônica de Potência</span></div>
+        <div class="prof-fact"><span class="dot"></span><span>Metodologia própria: teoria aplicada direto na prática de bancada</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-black">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Como funciona</div>
+      <h2>Do primeiro clique ao certificado.</h2>
+    </div>
+    <div class="flow-track">
+      <div class="flow-node"><div class="fn-num">01</div><h3>Escolha o curso</h3><p>Do básico ao avançado — encontre a trilha certa pro equipamento que você quer dominar.</p></div>
+      <div class="flow-node"><div class="fn-num">02</div><h3>Assista e pratique</h3><p>Aulas gravadas, no seu ritmo, sempre com aplicação real em bancada.</p></div>
+      <div class="flow-node"><div class="fn-num">03</div><h3>Tire dúvidas ao vivo</h3><p>Encontros mensais com os professores pra destravar o reparo que travou.</p></div>
+      <div class="flow-node"><div class="fn-num">04</div><h3>Receba o certificado</h3><p>Comprove suas habilidades e leve isso pro currículo ou pro próprio negócio.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="depoimentos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Quem já fez</div>
+      <h2>35 mil alunos já passaram pela bancada.</h2>
+    </div>
+  </div>
+  <div class="testi-track-wrap">
+    <div class="testi-track">
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>O curso de eletrônica básica foi um divisor de águas. Hoje sigo bem mais confiante pra evoluir nos cursos avançados.</p>
+        <div class="who"><div class="avatar">MR</div><div class="who-info"><strong>Marcos R.</strong><p>Eletrônica Inicial</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Professor Celso explica muito bem, relembrei matérias que achava que tinha esquecido da faculdade. Vale cada centavo.</p>
+        <div class="who"><div class="avatar">JS</div><div class="who-info"><strong>Julia S.</strong><p>Eletrônica de Potência</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Metodologia direta e prática. Consegui aplicar o que aprendi na minha bancada já nas primeiras semanas de curso.</p>
+        <div class="who"><div class="avatar">TF</div><div class="who-info"><strong>Thiago F.</strong><p>Fontes Chaveadas</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Comprei o curso de inversores solares sem saber quase nada e hoje já fecho serviço particular no meu bairro. Mudou minha renda.</p>
+        <div class="who"><div class="avatar">RP</div><div class="who-info"><strong>Rodrigo P.</strong><p>Inversores Solares</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>O suporte respondeu rápido quando travei num defeito complicado. Isso fez toda diferença pra eu não desistir no meio.</p>
+        <div class="who"><div class="avatar">CA</div><div class="who-info"><strong>Carla A.</strong><p>Manutenção de Esteiras</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Já tinha feito outros cursos soltos na internet, mas nenhum tão completo e direto ao ponto quanto o da Instructiva.</p>
+        <div class="who"><div class="avatar">EL</div><div class="who-info"><strong>Eduardo L.</strong><p>EMAC</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>O curso de eletrônica básica foi um divisor de águas. Hoje sigo bem mais confiante pra evoluir nos cursos avançados.</p>
+        <div class="who"><div class="avatar">MR</div><div class="who-info"><strong>Marcos R.</strong><p>Eletrônica Inicial</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Professor Celso explica muito bem, relembrei matérias que achava que tinha esquecido da faculdade. Vale cada centavo.</p>
+        <div class="who"><div class="avatar">JS</div><div class="who-info"><strong>Julia S.</strong><p>Eletrônica de Potência</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Metodologia direta e prática. Consegui aplicar o que aprendi na minha bancada já nas primeiras semanas de curso.</p>
+        <div class="who"><div class="avatar">TF</div><div class="who-info"><strong>Thiago F.</strong><p>Fontes Chaveadas</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Comprei o curso de inversores solares sem saber quase nada e hoje já fecho serviço particular no meu bairro. Mudou minha renda.</p>
+        <div class="who"><div class="avatar">RP</div><div class="who-info"><strong>Rodrigo P.</strong><p>Inversores Solares</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>O suporte respondeu rápido quando travei num defeito complicado. Isso fez toda diferença pra eu não desistir no meio.</p>
+        <div class="who"><div class="avatar">CA</div><div class="who-info"><strong>Carla A.</strong><p>Manutenção de Esteiras</p></div></div>
+      </div>
+      <div class="testi">
+        <div class="stars">★★★★★</div>
+        <p>Já tinha feito outros cursos soltos na internet, mas nenhum tão completo e direto ao ponto quanto o da Instructiva.</p>
+        <div class="who"><div class="avatar">EL</div><div class="who-info"><strong>Eduardo L.</strong><p>EMAC</p></div></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="guarantee-hero">
+  <div class="guarantee-inner">
+    <div class="seal-big">
+      <svg viewBox="0 0 300 300" role="img" aria-label="Selo de garantia de 7 dias">
+        <defs>
+          <path id="arcTop" d="M 46 150 A 104 104 0 0 1 254 150" fill="none"/>
+          <path id="arcBot" d="M 250 150 A 100 100 0 0 1 50 150" fill="none"/>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FBA45A"/>
+            <stop offset="0.5" stop-color="#F97316"/>
+            <stop offset="1" stop-color="#C24E08"/>
+          </linearGradient>
+          <radialGradient id="coreGrad" cx="50%" cy="42%" r="65%">
+            <stop offset="0" stop-color="#232323"/>
+            <stop offset="1" stop-color="#0B0B0B"/>
+          </radialGradient>
+        </defs>
+
+        <!-- borda serrilhada metálica -->
+        <path d="M150.00 4.00 L158.89 14.29 L169.06 5.25 L176.53 16.61 L187.79 8.97 L193.72 21.22 L205.87 15.11 L210.15 28.03 L223.00 23.56 L225.56 36.92 L238.88 34.17 L239.67 47.75 L253.24 46.76 L252.25 60.33 L265.83 61.12 L263.08 74.44 L276.44 77.00 L271.97 89.85 L284.89 94.13 L278.78 106.28 L291.03 112.21 L283.39 123.47 L294.75 130.94 L285.71 141.11 L296.00 150.00 L285.71 158.89 L294.75 169.06 L283.39 176.53 L291.03 187.79 L278.78 193.72 L284.89 205.87 L271.97 210.15 L276.44 223.00 L263.08 225.56 L265.83 238.88 L252.25 239.67 L253.24 253.24 L239.67 252.25 L238.88 265.83 L225.56 263.08 L223.00 276.44 L210.15 271.97 L205.87 284.89 L193.72 278.78 L187.79 291.03 L176.53 283.39 L169.06 294.75 L158.89 285.71 L150.00 296.00 L141.11 285.71 L130.94 294.75 L123.47 283.39 L112.21 291.03 L106.28 278.78 L94.13 284.89 L89.85 271.97 L77.00 276.44 L74.44 263.08 L61.12 265.83 L60.33 252.25 L46.76 253.24 L47.75 239.67 L34.17 238.88 L36.92 225.56 L23.56 223.00 L28.03 210.15 L15.11 205.87 L21.22 193.72 L8.97 187.79 L16.61 176.53 L5.25 169.06 L14.29 158.89 L4.00 150.00 L14.29 141.11 L5.25 130.94 L16.61 123.47 L8.97 112.21 L21.22 106.28 L15.11 94.13 L28.03 89.85 L23.56 77.00 L36.92 74.44 L34.17 61.12 L47.75 60.33 L46.76 46.76 L60.33 47.75 L61.12 34.17 L74.44 36.92 L77.00 23.56 L89.85 28.03 L94.13 15.11 L106.28 21.22 L112.21 8.97 L123.47 16.61 L130.94 5.25 L141.11 14.29 Z" fill="url(#ringGrad)"/>
+
+        <!-- anel externo de texto -->
+        <circle cx="150" cy="150" r="128" fill="url(#coreGrad)"/>
+        <!-- disco central -->
+        <circle cx="150" cy="150" r="98" fill="#0B0B0B" stroke="var(--orange)" stroke-width="1.5"/>
+        <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(249,115,22,.4)" stroke-width="1" stroke-dasharray="1.5 4"/>
+
+        <!-- texto curvado topo -->
+        <text fill="#fff" font-family="'Manrope', sans-serif" font-weight="800" font-size="14" letter-spacing="2.5">
+          <textPath href="#arcTop" startOffset="50%" text-anchor="middle">GARANTIA INCONDICIONAL</textPath>
+        </text>
+        <!-- texto curvado base -->
+        <text fill="#fff" font-family="'Manrope', sans-serif" font-weight="800" font-size="14" letter-spacing="2.5">
+          <textPath href="#arcBot" startOffset="50%" text-anchor="middle">SATISFAÇÃO GARANTIDA</textPath>
+        </text>
+
+        <!-- estrelas laterais -->
+        <text x="40" y="156" fill="var(--orange)" font-size="15" text-anchor="middle">★</text>
+        <text x="260" y="156" fill="var(--orange)" font-size="15" text-anchor="middle">★</text>
+
+        <!-- miolo empilhado -->
+        <text x="150" y="132" text-anchor="middle" fill="#fff" font-family="'Manrope', sans-serif" font-weight="700" font-size="17" letter-spacing="1">DINHEIRO</text>
+        <text x="150" y="150" text-anchor="middle" fill="#fff" font-family="'Manrope', sans-serif" font-weight="700" font-size="17" letter-spacing="1">DE VOLTA EM</text>
+        <text x="150" y="188" text-anchor="middle" fill="var(--orange)" font-family="'Manrope', sans-serif" font-weight="800" font-size="40" letter-spacing="0.5">7 DIAS</text>
+      </svg>
+    </div>
+    <div class="guarantee-text">
+      <div class="eyebrow" style="color:var(--orange);">Compra protegida</div>
+      <h2>Risco zero pra você começar.</h2>
+      <p>Se em até <strong>7 dias</strong> você sentir que o curso não é pra você, devolvemos <strong>100% do valor</strong> — sem perguntas, sem burocracia e sem letra miúda.</p>
+      <div class="guarantee-badges">
+        <span class="g-badge">Reembolso integral</span>
+        <span class="g-badge">Sem justificativa</span>
+        <span class="g-badge">Direto no seu método de pagamento</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Antes de começar</div>
+      <h2>As perguntas que você provavelmente tem.</h2>
+    </div>
+    <div class="faq-list"><div class="faq-item open">
+        <button class="faq-q"><span>Preciso ter experiência em eletrônica pra começar?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Não. Temos cursos desde o nível básico até o avançado. Mesmo quem nunca teve contato com eletrônica consegue acompanhar e evoluir passo a passo, no seu próprio ritmo.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Funciona no celular ou só no computador?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>A plataforma é 100% online e pode ser acessada pelo celular, computador, tablet ou até transmitida pra TV. Basta ter conexão com a internet.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Os cursos dão certificado?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Sim. Todos os cursos da Instructiva oferecem certificado de conclusão, que você pode usar pra enriquecer seu currículo ou comprovar suas habilidades no mercado.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>O pagamento é seguro?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Sim. Trabalhamos com transações 100% seguras, com dados protegidos por criptografia — suas informações não ficam armazenadas na nossa plataforma.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>E se eu não gostar do curso?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Você conta com garantia de satisfação de 7 dias. Se não se adaptar, é só pedir o reembolso, sem burocracia.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>O acesso realmente não expira?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Isso mesmo. Depois de matriculado, o curso é seu pra sempre — você pode assistir quantas vezes quiser, quando quiser, sem prazo de validade.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Quanto tempo leva pra concluir um curso?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Varia de pessoa pra pessoa, já que você estuda no seu próprio ritmo. Muitos alunos concluem os módulos principais em poucas semanas, dedicando algumas horas por semana.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Preciso de equipamento pra praticar?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Não é obrigatório pra acompanhar as aulas, mas recomendamos ter um multímetro básico pra já ir aplicando o que aprende. Indicamos os equipamentos certos dentro do curso.</p></div>
+      </div></div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Sua bancada começa aqui.</h2>
+    <p>Mais de 35 mil alunos já deram o primeiro passo. Agora é a sua vez.</p>
+    <a href="cursos.html" class="btn btn-cta">Ver todos os cursos →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo" href="index.html" style="margin-bottom:16px;">
+          <img class="mark" src="assets/img/logo-instructiva.png" alt="Escola Instructiva">
+          Escola <b>Instructiva</b>
+        </a>
+        <p style="font-size:13.5px; color:#9A9A94; max-width:260px; line-height:1.6; font-family:'Inter',sans-serif;">Ensino técnico de eletrônica e manutenção. Sete anos formando quem conserta de verdade.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Cursos</h4>
+        <a href="cursos.html">Televisores</a>
+        <a href="cursos.html">Fontes chaveadas</a>
+        <a href="cursos.html">Tecnologias Inverter</a>
+        <a href="cursos.html">Placas eletrônicas</a>
+      </div>
+      <div class="foot-col">
+        <h4>Empresa</h4>
+        <a href="index.html#professor">Quem somos</a>
+        <a href="index.html#depoimentos">Depoimentos</a>
+        <a href="#">Contato</a>
+      </div>
+      <div class="foot-col">
+        <h4>Suporte</h4>
+        <a href="index.html#faq">Dúvidas frequentes</a>
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener">Área do aluno</a>
+        <a href="https://wa.me/5544997085134?text=Oi%2C%20Let%C3%ADcia%21%20Vim%20pelo%20site%20da%20Escola%20Instructiva%20e%20preciso%20de%20ajuda." target="_blank" rel="noopener">Falar com a Letícia (WhatsApp)</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 ESCOLA INSTRUCTIVA · TODOS OS DIREITOS RESERVADOS</p>
+    </div>
+  </div>
+</footer>
+<div class="sticky-cta" id="stickyCta">
+  <div class="wrap sticky-inner">
+    <span class="sticky-copy"><strong>Especialista em Manutenção de Inversores Solares</strong> — <span class="sticky-price">R$ 1.697,00</span></span>
+    <a href="cursos/especialista-em-manutencao-de-inversores-solares.html" class="btn btn-cta btn-sm">Ver curso</a>
+  </div>
+</div>
+<script>
+  var stickyCta = document.getElementById('stickyCta');
+  var trigger = document.querySelector('.hero');
+  window.addEventListener('scroll', function(){
+    if(trigger && window.scrollY > trigger.offsetTop + trigger.offsetHeight){ stickyCta.classList.add('show'); }
+    else{ stickyCta.classList.remove('show'); }
+  });
+</script>
+<script>
+  document.querySelectorAll('.faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var wasOpen = item.classList.contains('open');
+      item.closest('.faq-list').querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen){ item.classList.add('open'); }
+    });
+  });
+</script>
+<script src="js/popup.js"></script>
+
+</body>
+</html>

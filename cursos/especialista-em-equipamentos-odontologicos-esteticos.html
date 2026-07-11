@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Especialista em Equipamentos Odontológicos — Estéticos — Escola Instructiva</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/popup.css">
+<link rel="stylesheet" href="../css/course-sales.css">
+<link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicon-180.png">
+</head>
+<body>
+<button type="button" class="whatsapp-float" id="waToggle" aria-label="Falar com o suporte pelo WhatsApp">
+  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.004 3C9.373 3 4 8.373 4 15.004c0 2.647.86 5.096 2.318 7.077L4.6 28.4l6.5-1.677a11.93 11.93 0 0 0 4.9 1.043h.004c6.63 0 12.004-5.373 12.004-12.004C28.008 8.373 22.635 3 16.004 3Zm7.03 17.06c-.297.833-1.47 1.526-2.404 1.727-.639.136-1.473.245-4.28-.92-3.59-1.49-5.9-5.14-6.08-5.38-.176-.24-1.454-1.938-1.454-3.696 0-1.757.918-2.62 1.245-2.98.297-.325.647-.407.863-.407.216 0 .432.002.62.011.216.01.482-.082.754.575.297.72.008 2.06.008 2.06s-.44.505-.19 1.166c.43 1.14 1.87 2.5 2.05 2.68.18.18 1.6 1.62 2.79 2.06.66.244 1.09.207 1.33-.05.24-.257.68-.83.87-1.08.19-.25.38-.207.63-.13.25.08 1.58.76 1.86.93.28.17.46.256.53.396.07.14.07.81-.227 1.643Z"/></svg>
+  <span class="wa-label">Falar com o suporte</span>
+</button>
+
+<div class="wa-popup-overlay" id="waPopupOverlay">
+  <div class="wa-popup" role="dialog" aria-modal="true">
+    <button class="wa-popup-close" id="waPopupClose" aria-label="Fechar">&times;</button>
+    <h3>Falar com o suporte</h3>
+    <div class="wa-hours">Atendimento: Segunda a Sexta, das 08:00 às 18:00</div>
+
+    <div class="wa-step-label">Escolha uma de nossas atendentes!!</div>
+    <div class="wa-choice-row" id="waAttendantRow">
+      <div class="wa-choice" data-name="Letícia" data-phone="5544997085134">
+        <div class="wa-avatar" style="background-image:url('../assets/img/team/leticia.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Letícia</div>
+      </div>
+      <div class="wa-choice" data-name="Lilian" data-phone="5544997005267">
+        <div class="wa-avatar" style="background-image:url('../assets/img/team/lilian.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Lilian</div>
+      </div>
+      <div class="wa-choice" data-name="Vitória" data-phone="5544997267313">
+        <div class="wa-avatar" style="background-image:url('../assets/img/team/vitoria.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Vitória</div>
+      </div>
+      <div class="wa-choice" data-name="Rayssa" data-phone="5544997224134">
+        <div class="wa-avatar" style="background-image:url('../assets/img/team/rayssa.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Rayssa</div>
+      </div>
+    </div>
+
+    <div class="wa-step-label">Como podemos te ajudar?</div>
+    <div class="wa-reason-row" id="waReasonRow">
+      <div class="wa-reason" data-reason="Estou com problema de acesso à plataforma">Problema com acesso</div>
+      <div class="wa-reason" data-reason="Quero adquirir um treinamento">Quero adquirir um treinamento</div>
+    </div>
+
+    <button class="wa-submit-btn" id="waSubmit" disabled>
+      <span>Continuar no WhatsApp</span>
+    </button>
+    <p class="wa-fine-print">Fora do horário de atendimento? Pode chamar mesmo assim — respondemos assim que possível.</p>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var toggleBtn = document.getElementById('waToggle');
+    var overlay = document.getElementById('waPopupOverlay');
+    var closeBtn = document.getElementById('waPopupClose');
+    var attendantRow = document.getElementById('waAttendantRow');
+    var reasonRow = document.getElementById('waReasonRow');
+    var submitBtn = document.getElementById('waSubmit');
+
+    var selectedName = null, selectedPhone = null, selectedReason = null;
+
+    function updateSubmitState(){
+      submitBtn.disabled = !(selectedPhone && selectedReason);
+    }
+
+    toggleBtn.addEventListener('click', function(){
+      overlay.classList.add('show');
+    });
+    closeBtn.addEventListener('click', function(){
+      overlay.classList.remove('show');
+    });
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay){ overlay.classList.remove('show'); }
+    });
+
+    attendantRow.querySelectorAll('.wa-choice').forEach(function(el){
+      el.addEventListener('click', function(){
+        attendantRow.querySelectorAll('.wa-choice').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedName = el.dataset.name;
+        selectedPhone = el.dataset.phone;
+        updateSubmitState();
+      });
+    });
+
+    reasonRow.querySelectorAll('.wa-reason').forEach(function(el){
+      el.addEventListener('click', function(){
+        reasonRow.querySelectorAll('.wa-reason').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedReason = el.dataset.reason;
+        updateSubmitState();
+      });
+    });
+
+    submitBtn.addEventListener('click', function(){
+      if(!selectedPhone || !selectedReason) return;
+      var msg = 'Oi, ' + selectedName + '! Vim pelo site da Escola Instructiva. ' + selectedReason + '.';
+      var url = 'https://wa.me/' + selectedPhone + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+      overlay.classList.remove('show');
+    });
+  })();
+</script>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="../index.html">
+        <img class="mark" src="../assets/img/logo-instructiva.png" alt="Escola Instructiva">
+        Escola <b>Instructiva</b>
+      </a>
+      <div class="nav-links">
+        <a href="../cursos.html" class="active">cursos</a>
+        <a href="../index.html#professor">sobre</a>
+        <a href="../index.html#depoimentos">depoimentos</a>
+        <a href="../index.html#faq">faq</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm">Área do aluno</a>
+        <a href="../cursos.html" class="btn btn-cta btn-sm">Matricule-se</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="course-infobar">
+  <div class="wrap">
+    <div>
+      <h2>Especialista em Equipamentos Odontológicos — Estéticos</h2>
+      <div class="meta">Odonto Médico · A partir de 12x R$ 249,36 · Acesso vitalício</div>
+    </div>
+    <a href="#comprar" class="btn btn-cta btn-sm">Garantir acesso agora</a>
+  </div>
+</div>
+
+<section class="sales-hero">
+  <div class="wrap">
+    <div class="badge-fire">CURSO COMPLETO · ACESSO VITALÍCIO</div>
+    <h1>Pronto para se tornar um <em>especialista em Equipamentos Odontológicos — Estéticos</em>?</h1>
+    <p class="sub">Diagnóstico e reparo de autoclaves, ultrassom, eletroterapia e alta frequência em clínicas odontológicas, estéticas e de fisioterapia.</p>
+    <div id="comprar"><div class="price-panel">
+      <div class="p-lbl">Investimento único</div>
+      <div class="p-inst">12x de</div>
+      <div class="p-value">R$ 249<sup>,36</sup></div>
+      <div class="p-alt">ou R$ 2.497,00 à vista no PIX</div>
+      <a href="https://payfast.greenn.com.br/dsgzbvx/offer/IQhznj?utm_term=SITE" class="btn btn-cta" target="_blank" rel="noopener">Garantir minha vaga →</a>
+      <div class="pay-row"><span>Cartão</span><span>PIX</span><span>2 cartões</span><span>PIX + cartão</span></div>
+      <div class="incl-list">
+        <div>Certificado de conclusão incluso</div>
+        <div>Acesso vitalício às aulas</div>
+        <div>Suporte direto com os professores</div>
+        <div>Garantia de 7 dias — sem burocracia</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">O que você vai aprender</div>
+      <h2>Tudo que você precisa pra dominar equipamentos odontológicos — estéticos</h2>
+      <p>Cada módulo une teoria direta ao ponto com prática real de bancada.</p>
+    </div>
+    <ul class="course-list"><li>Diagnóstico e reparo de autoclaves, ultrassom, eletroterapia e alta frequência</li><li>Entendimento do funcionamento dos circuitos por trás dos equipamentos</li><li>Identificação de falhas com segurança, sem troca aleatória de peças</li><li>Atuação em clínicas odontológicas, estéticas e de fisioterapia</li></ul>
+  </div>
+</section>
+
+<section class="bg-black">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Você se reconhece nisso?</div>
+      <h2>Quem domina vs quem não domina equipamentos odontológicos — estéticos</h2>
+      <p>A diferença não é só de conhecimento — é de renda, autonomia e reputação no mercado.</p>
+    </div>
+    <div class="compare-wrap">
+      <div class="compare-col good"><h3>✓ Quem domina</h3><div class="compare-item"><strong>Diagnóstico e reparo de autoclaves, ultrassom, eletroterapia e alta frequência</strong><p>Aplica isso com segurança, direto na bancada.</p></div><div class="compare-item"><strong>Entendimento do funcionamento dos circuitos por trás dos equipamentos</strong><p>Aplica isso com segurança, direto na bancada.</p></div><div class="compare-item"><strong>Identificação de falhas com segurança, sem troca aleatória de peças</strong><p>Aplica isso com segurança, direto na bancada.</p></div><div class="compare-item"><strong>Atuação em clínicas odontológicas, estéticas e de fisioterapia</strong><p>Aplica isso com segurança, direto na bancada.</p></div></div>
+      <div class="compare-col bad"><h3>✗ Quem não domina</h3><div class="compare-item"><strong>Não domina isso</strong><p>Sem essa base, fica no chute ou depende de outra pessoa pra resolver.</p></div><div class="compare-item"><strong>Não domina isso</strong><p>Sem essa base, fica no chute ou depende de outra pessoa pra resolver.</p></div><div class="compare-item"><strong>Não domina isso</strong><p>Sem essa base, fica no chute ou depende de outra pessoa pra resolver.</p></div><div class="compare-item"><strong>Não domina isso</strong><p>Sem essa base, fica no chute ou depende de outra pessoa pra resolver.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Palavras que transformam</div>
+      <h2>O que o Prof. Celso Muniz tem pra te dizer</h2>
+    </div>
+    <div class="quote-block">
+      <p>"Diagnóstico e reparo de autoclaves, ultrassom, eletroterapia e alta frequência em clínicas odontológicas, estéticas e de fisioterapia."</p>
+      <div class="who">Prof. Celso Muniz · Fundador da Escola Instructiva</div>
+    </div>
+    <div class="quote-row">
+      <div class="quote-sm"><p>Quem <em>aprende</em> não <em>depende</em>.</p><div class="who">Prof. Celso Muniz</div></div>
+      <div class="quote-sm"><p>Quanto menos <em>conhecimento</em>, mais <em>retrabalho</em>.</p><div class="who">Prof. Celso Muniz</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-black">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Antes de continuar</div>
+      <h2>Os erros que travam quem atua sem se especializar</h2>
+      <p>Se você já está na área, é bem provável que cometa alguns desses erros hoje sem perceber.</p>
+    </div>
+    <div class="errors-grid"><div class="error-card">
+          <div class="e-num">ERRO 01</div>
+          <h4>Só troca peça na tentativa</h4>
+          <p>Sem diagnóstico por método, o jeito vira substituir componente atrás de componente até acertar — gastando tempo e peça do próprio bolso.</p>
+        </div><div class="error-card">
+          <div class="e-num">ERRO 02</div>
+          <h4>Depende de grupo de WhatsApp pra cada defeito</h4>
+          <p>Tira foto, manda pro grupo e espera alguém responder. Sem autonomia, cada atendimento vira uma loteria.</p>
+        </div><div class="error-card">
+          <div class="e-num">ERRO 03</div>
+          <h4>Não lê datasheet nem esquemático</h4>
+          <p>Olha pra um circuito e não entende o que está vendo — não sabe rastrear o caminho do sinal nem confirmar se um componente substituto é compatível.</p>
+        </div><div class="error-card">
+          <div class="e-num">ERRO 04</div>
+          <h4>Não usa instrumentação além do multímetro</h4>
+          <p>Multímetro mede componente parado. Sem osciloscópio ou ferramentas de análise, boa parte dos defeitos em equipamentos modernos fica invisível.</p>
+        </div><div class="error-card">
+          <div class="e-num">ERRO 05</div>
+          <h4>Sem procedimento definido</h4>
+          <p>Cada atendimento é uma aventura sem direção — o técnico reage ao acaso em vez de seguir um método de diagnóstico repetível.</p>
+        </div><div class="error-card">
+          <div class="e-num">ERRO 06</div>
+          <h4>Cobra pouco por falta de diferencial técnico</h4>
+          <p>Sem domínio real do equipamento, a única forma de competir é no preço — o que aperta a margem e desvaloriza o próprio trabalho.</p>
+        </div></div>
+  </div>
+</section>
+
+<section class="bg-mint">
+  <div class="wrap">
+    <div class="guarantee-banner" style="background:#fff;">
+      <div class="badge">7 DIAS<br>GARANTIA</div>
+      <div>
+        <h3>Risco zero pra você começar.</h3>
+        <p>Se em até 7 dias você sentir que não é pra você, devolvemos 100% do valor, sem perguntas e sem burocracia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="bg-black">
+  <div class="wrap">
+    <div class="eyebrow">Torne-se especialista</div>
+    <h2 style="color:#fff; text-transform:none; margin:12px 0 20px; font-size:clamp(24px,3.4vw,36px);">Especialista em Equipamentos Odontológicos — Estéticos</h2>
+    
+    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin-top:24px;">
+      <a href="https://payfast.greenn.com.br/dsgzbvx/offer/IQhznj?utm_term=SITE" class="btn btn-cta" target="_blank" rel="noopener">Quero me especializar agora →</a>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#9A9A94;">7 dias de garantia · Certificado incluso</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Antes de começar</div><h2>Perguntas frequentes</h2></div>
+    <div class="faq-list"><div class="faq-item open">
+        <button class="faq-q"><span>Preciso ter experiência em eletrônica pra começar?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Não. Temos cursos desde o nível básico até o avançado. Mesmo quem nunca teve contato com eletrônica consegue acompanhar e evoluir passo a passo, no seu próprio ritmo.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Funciona no celular ou só no computador?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>A plataforma é 100% online e pode ser acessada pelo celular, computador, tablet ou até transmitida pra TV. Basta ter conexão com a internet.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>Os cursos dão certificado?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Sim. Todos os cursos da Instructiva oferecem certificado de conclusão, que você pode usar pra enriquecer seu currículo ou comprovar suas habilidades no mercado.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>O pagamento é seguro?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Sim. Trabalhamos com transações 100% seguras, com dados protegidos por criptografia — suas informações não ficam armazenadas na nossa plataforma.</p></div>
+      </div>
+<div class="faq-item">
+        <button class="faq-q"><span>E se eu não gostar do curso?</span><span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Você conta com garantia de satisfação de 7 dias. Se não se adaptar, é só pedir o reembolso, sem burocracia.</p></div>
+      </div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo" href="../index.html" style="margin-bottom:16px;">
+          <img class="mark" src="../assets/img/logo-instructiva.png" alt="Escola Instructiva">
+          Escola <b>Instructiva</b>
+        </a>
+        <p style="font-size:13.5px; color:#9A9A94; max-width:260px; line-height:1.6; font-family:'Inter',sans-serif;">Ensino técnico de eletrônica e manutenção. Sete anos formando quem conserta de verdade.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Cursos</h4>
+        <a href="../cursos.html">Televisores</a>
+        <a href="../cursos.html">Fontes chaveadas</a>
+        <a href="../cursos.html">Tecnologias Inverter</a>
+        <a href="../cursos.html">Placas eletrônicas</a>
+      </div>
+      <div class="foot-col">
+        <h4>Empresa</h4>
+        <a href="../index.html#professor">Quem somos</a>
+        <a href="../index.html#depoimentos">Depoimentos</a>
+        <a href="#">Contato</a>
+      </div>
+      <div class="foot-col">
+        <h4>Suporte</h4>
+        <a href="../index.html#faq">Dúvidas frequentes</a>
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener">Área do aluno</a>
+        <a href="https://wa.me/5544997085134?text=Oi%2C%20Let%C3%ADcia%21%20Vim%20pelo%20site%20da%20Escola%20Instructiva%20e%20preciso%20de%20ajuda." target="_blank" rel="noopener">Falar com a Letícia (WhatsApp)</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 ESCOLA INSTRUCTIVA · TODOS OS DIREITOS RESERVADOS</p>
+    </div>
+  </div>
+</footer>
+<div class="sticky-cta" id="stickyCta">
+  <div class="wrap sticky-inner">
+    <span class="sticky-copy"><strong>Especialista em Equipamentos Odontológicos — Estéticos</strong> — <span class="sticky-price">R$ 2.497,00</span></span>
+    <a href="https://payfast.greenn.com.br/dsgzbvx/offer/IQhznj?utm_term=SITE" class="btn btn-cta btn-sm" target="_blank" rel="noopener">Comprar agora</a>
+  </div>
+</div>
+<script>
+  var stickyCta = document.getElementById('stickyCta');
+  var trigger = document.querySelector('.sales-hero');
+  window.addEventListener('scroll', function(){
+    if(trigger && window.scrollY > trigger.offsetTop + trigger.offsetHeight){ stickyCta.classList.add('show'); }
+    else{ stickyCta.classList.remove('show'); }
+  });
+</script>
+<script>
+  document.querySelectorAll('.faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var wasOpen = item.classList.contains('open');
+      item.closest('.faq-list').querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen){ item.classList.add('open'); }
+    });
+  });
+</script>
+<script src="../js/popup.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursos — Escola Instructiva</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/popup.css">
+<link rel="stylesheet" href="css/course-sales.css">
+<link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon-180.png">
+</head>
+<body>
+<button type="button" class="whatsapp-float" id="waToggle" aria-label="Falar com o suporte pelo WhatsApp">
+  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.004 3C9.373 3 4 8.373 4 15.004c0 2.647.86 5.096 2.318 7.077L4.6 28.4l6.5-1.677a11.93 11.93 0 0 0 4.9 1.043h.004c6.63 0 12.004-5.373 12.004-12.004C28.008 8.373 22.635 3 16.004 3Zm7.03 17.06c-.297.833-1.47 1.526-2.404 1.727-.639.136-1.473.245-4.28-.92-3.59-1.49-5.9-5.14-6.08-5.38-.176-.24-1.454-1.938-1.454-3.696 0-1.757.918-2.62 1.245-2.98.297-.325.647-.407.863-.407.216 0 .432.002.62.011.216.01.482-.082.754.575.297.72.008 2.06.008 2.06s-.44.505-.19 1.166c.43 1.14 1.87 2.5 2.05 2.68.18.18 1.6 1.62 2.79 2.06.66.244 1.09.207 1.33-.05.24-.257.68-.83.87-1.08.19-.25.38-.207.63-.13.25.08 1.58.76 1.86.93.28.17.46.256.53.396.07.14.07.81-.227 1.643Z"/></svg>
+  <span class="wa-label">Falar com o suporte</span>
+</button>
+
+<div class="wa-popup-overlay" id="waPopupOverlay">
+  <div class="wa-popup" role="dialog" aria-modal="true">
+    <button class="wa-popup-close" id="waPopupClose" aria-label="Fechar">&times;</button>
+    <h3>Falar com o suporte</h3>
+    <div class="wa-hours">Atendimento: Segunda a Sexta, das 08:00 às 18:00</div>
+
+    <div class="wa-step-label">Escolha uma de nossas atendentes!!</div>
+    <div class="wa-choice-row" id="waAttendantRow">
+      <div class="wa-choice" data-name="Letícia" data-phone="5544997085134">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/leticia.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Letícia</div>
+      </div>
+      <div class="wa-choice" data-name="Lilian" data-phone="5544997005267">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/lilian.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Lilian</div>
+      </div>
+      <div class="wa-choice" data-name="Vitória" data-phone="5544997267313">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/vitoria.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Vitória</div>
+      </div>
+      <div class="wa-choice" data-name="Rayssa" data-phone="5544997224134">
+        <div class="wa-avatar" style="background-image:url('assets/img/team/rayssa.jpg'); background-size:cover; background-position:center;"></div>
+        <div class="wa-name">Rayssa</div>
+      </div>
+    </div>
+
+    <div class="wa-step-label">Como podemos te ajudar?</div>
+    <div class="wa-reason-row" id="waReasonRow">
+      <div class="wa-reason" data-reason="Estou com problema de acesso à plataforma">Problema com acesso</div>
+      <div class="wa-reason" data-reason="Quero adquirir um treinamento">Quero adquirir um treinamento</div>
+    </div>
+
+    <button class="wa-submit-btn" id="waSubmit" disabled>
+      <span>Continuar no WhatsApp</span>
+    </button>
+    <p class="wa-fine-print">Fora do horário de atendimento? Pode chamar mesmo assim — respondemos assim que possível.</p>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var toggleBtn = document.getElementById('waToggle');
+    var overlay = document.getElementById('waPopupOverlay');
+    var closeBtn = document.getElementById('waPopupClose');
+    var attendantRow = document.getElementById('waAttendantRow');
+    var reasonRow = document.getElementById('waReasonRow');
+    var submitBtn = document.getElementById('waSubmit');
+
+    var selectedName = null, selectedPhone = null, selectedReason = null;
+
+    function updateSubmitState(){
+      submitBtn.disabled = !(selectedPhone && selectedReason);
+    }
+
+    toggleBtn.addEventListener('click', function(){
+      overlay.classList.add('show');
+    });
+    closeBtn.addEventListener('click', function(){
+      overlay.classList.remove('show');
+    });
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay){ overlay.classList.remove('show'); }
+    });
+
+    attendantRow.querySelectorAll('.wa-choice').forEach(function(el){
+      el.addEventListener('click', function(){
+        attendantRow.querySelectorAll('.wa-choice').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedName = el.dataset.name;
+        selectedPhone = el.dataset.phone;
+        updateSubmitState();
+      });
+    });
+
+    reasonRow.querySelectorAll('.wa-reason').forEach(function(el){
+      el.addEventListener('click', function(){
+        reasonRow.querySelectorAll('.wa-reason').forEach(function(o){ o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedReason = el.dataset.reason;
+        updateSubmitState();
+      });
+    });
+
+    submitBtn.addEventListener('click', function(){
+      if(!selectedPhone || !selectedReason) return;
+      var msg = 'Oi, ' + selectedName + '! Vim pelo site da Escola Instructiva. ' + selectedReason + '.';
+      var url = 'https://wa.me/' + selectedPhone + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+      overlay.classList.remove('show');
+    });
+  })();
+</script>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="index.html">
+        <img class="mark" src="assets/img/logo-instructiva.png" alt="Escola Instructiva">
+        Escola <b>Instructiva</b>
+      </a>
+      <div class="nav-links">
+        <a href="cursos.html" class="active">cursos</a>
+        <a href="index.html#professor">sobre</a>
+        <a href="index.html#depoimentos">depoimentos</a>
+        <a href="index.html#faq">faq</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm">Área do aluno</a>
+        <a href="cursos.html" class="btn btn-cta btn-sm">Matricule-se</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="wrap crumb"><a href="index.html">Início</a> / Cursos</div>
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Catálogo completo</div>
+      <h2>19 cursos. 9 especializações.</h2>
+      <p>Filtre por categoria ou busque pelo nome. Cada curso tem preço, parcelamento e garantia de 7 dias.</p>
+    </div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Buscar curso por nome..."></div>
+    <div class="filters" id="filterBar">
+      <button class="active" data-filter="all">Todos</button><button data-filter="Televisores">Televisores</button><button data-filter="Fontes Chaveadas">Fontes Chaveadas</button><button data-filter="Tecnologias Inverter">Tecnologias Inverter</button><button data-filter="Eletrônica">Eletrônica</button><button data-filter="Amplificadores">Amplificadores</button><button data-filter="Indústria">Indústria</button><button data-filter="Inversor Solar">Inversor Solar</button><button data-filter="Academia">Academia</button><button data-filter="Odonto Médico">Odonto Médico</button>
+    </div>
+    <div class="course-grid" id="courseGrid">
+      <a class="course-card" href="cursos/especialista-em-manutencao-em-televisores-led-e-lcd.html" data-cat="Televisores" data-title="especialista em manutenção em televisores led e lcd">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/televisores.jpg');">
+        <span class="num">01</span>
+        <span class="badge">Televisores</span>
+        <h3>Especialista em Manutenção em Televisores LED e LCD</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-em-fontes-chaveadas.html" data-cat="Fontes Chaveadas" data-title="especialista em manutenção em fontes chaveadas">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/fontes-chaveadas.jpg');">
+        <span class="num">02</span>
+        <span class="badge">Fontes Chaveadas</span>
+        <h3>Especialista em Manutenção em Fontes Chaveadas</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-analise-e-procedimentos-videoaulas.html" data-cat="Fontes Chaveadas" data-title="livro: análise e procedimentos + videoaulas">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/livro-analise-e-procedimentos.jpg');">
+        <span class="num">03</span>
+        <span class="badge">Fontes Chaveadas</span>
+        <h3>Livro: Análise e Procedimentos + Videoaulas</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-em-tecnologias-inverter.html" data-cat="Tecnologias Inverter" data-title="especialista em manutenção em tecnologias inverter">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/tecnologias-inverter.jpg');">
+        <span class="num">04</span>
+        <span class="badge">Tecnologias Inverter</span>
+        <h3>Especialista em Manutenção em Tecnologias Inverter</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.697,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/manutencao-reparo-instalacao-de-ar-condicionado.html" data-cat="Tecnologias Inverter" data-title="manutenção, reparo + instalação de ar condicionado">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/instalacao-ar-condicionado.jpg');">
+        <span class="num">05</span>
+        <span class="badge">Tecnologias Inverter</span>
+        <h3>Manutenção, Reparo + Instalação de Ar Condicionado</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 997,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-reparo-em-placas-eletronicas-emac.html" data-cat="Eletrônica" data-title="especialista em reparo em placas eletrônicas (emac)">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/emac.jpg');">
+        <span class="num">06</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Especialista em Reparo em Placas Eletrônicas (EMAC)</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/manuseio-de-osciloscopio.html" data-cat="Eletrônica" data-title="manuseio de osciloscópio">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/manuseio-de-osciloscopio.jpg');">
+        <span class="num">07</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Manuseio de Osciloscópio</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-eletronica-de-potencia-retificadores.html" data-cat="Eletrônica" data-title="livro: eletrônica de potência — retificadores">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/livro-retificadores.jpg');">
+        <span class="num">08</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Livro: Eletrônica de Potência — Retificadores</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-eletronica-de-potencia-semicondutores.html" data-cat="Eletrônica" data-title="livro: eletrônica de potência — semicondutores">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/livro-semicondutores.jpg');">
+        <span class="num">09</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Livro: Eletrônica de Potência — Semicondutores</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-eletronica-de-potencia-conversores-cc-cc.html" data-cat="Eletrônica" data-title="livro: eletrônica de potência — conversores cc-cc">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/livro-cc-cc.jpg');">
+        <span class="num">10</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Livro: Eletrônica de Potência — Conversores CC-CC</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-de-exercicios-analise-de-circuitos-e-defeitos.html" data-cat="Eletrônica" data-title="livro de exercícios — análise de circuitos e defeitos">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/livro-exercicios.jpg');">
+        <span class="num">11</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Livro de Exercícios — Análise de Circuitos e Defeitos</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/eletronica-inicial-analogica.html" data-cat="Eletrônica" data-title="eletrônica inicial — analógica">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/eletronica-inicial.jpg');">
+        <span class="num">12</span>
+        <span class="badge">Eletrônica</span>
+        <h3>Eletrônica Inicial — Analógica</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-em-amplificadores-de-audio.html" data-cat="Amplificadores" data-title="especialista em manutenção em amplificadores de áudio">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/amplificadores-de-audio.jpg');">
+        <span class="num">13</span>
+        <span class="badge">Amplificadores</span>
+        <h3>Especialista em Manutenção em Amplificadores de Áudio</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-em-inversores-de-frequencia-e-softstarter.html" data-cat="Indústria" data-title="especialista em manutenção em inversores de frequência e softstarter">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/softstarter.jpg');">
+        <span class="num">14</span>
+        <span class="badge">Indústria</span>
+        <h3>Especialista em Manutenção em Inversores de Frequência e Softstarter</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.697,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-de-inversores-solares.html" data-cat="Inversor Solar" data-title="especialista em manutenção de inversores solares">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/inversores-solares.jpg');">
+        <span class="num">15</span>
+        <span class="badge">Inversor Solar</span>
+        <h3>Especialista em Manutenção de Inversores Solares</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.697,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-manutencao-em-esteira-de-academias.html" data-cat="Academia" data-title="especialista em manutenção em esteira de academias">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/esteira-de-academias.jpg');">
+        <span class="num">16</span>
+        <span class="badge">Academia</span>
+        <h3>Especialista em Manutenção em Esteira de Academias</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 1.697,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/especialista-em-equipamentos-odontologicos-esteticos.html" data-cat="Odonto Médico" data-title="especialista em equipamentos odontológicos — estéticos">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/odonto-esteticos.jpg');">
+        <span class="num">17</span>
+        <span class="badge">Odonto Médico</span>
+        <h3>Especialista em Equipamentos Odontológicos — Estéticos</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 2.497,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-retificador-pfc-monofasico-videoaulas.html" data-cat="Fontes Chaveadas" data-title="livro: retificador pfc monofásico + videoaulas">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/retificador-pfc.jpg');">
+        <span class="num">18</span>
+        <span class="badge">Fontes Chaveadas</span>
+        <h3>Livro: Retificador PFC Monofásico + Videoaulas</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a><a class="course-card" href="cursos/livro-fontes-chaveadas-topologia-flyback-videoaulas.html" data-cat="Fontes Chaveadas" data-title="livro: fontes chaveadas topologia flyback + videoaulas">
+      <div class="course-poster has-photo" style="background-image:url('assets/img/cursos/flyback.jpg');">
+        <span class="num">19</span>
+        <span class="badge">Fontes Chaveadas</span>
+        <h3>Livro: Fontes Chaveadas Topologia Flyback + Videoaulas</h3>
+      </div>
+      <div class="foot">
+        <div class="price-mini"><span>a partir de</span>R$ 397,00</div>
+        <span class="explore">Explorar →</span>
+      </div>
+    </a>
+    </div>
+    <p id="emptyState" style="display:none; text-align:center; color:var(--muted); padding:40px 0;">Nenhum curso encontrado com esse filtro.</p>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo" href="index.html" style="margin-bottom:16px;">
+          <img class="mark" src="assets/img/logo-instructiva.png" alt="Escola Instructiva">
+          Escola <b>Instructiva</b>
+        </a>
+        <p style="font-size:13.5px; color:#9A9A94; max-width:260px; line-height:1.6; font-family:'Inter',sans-serif;">Ensino técnico de eletrônica e manutenção. Sete anos formando quem conserta de verdade.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Cursos</h4>
+        <a href="cursos.html">Televisores</a>
+        <a href="cursos.html">Fontes chaveadas</a>
+        <a href="cursos.html">Tecnologias Inverter</a>
+        <a href="cursos.html">Placas eletrônicas</a>
+      </div>
+      <div class="foot-col">
+        <h4>Empresa</h4>
+        <a href="index.html#professor">Quem somos</a>
+        <a href="index.html#depoimentos">Depoimentos</a>
+        <a href="#">Contato</a>
+      </div>
+      <div class="foot-col">
+        <h4>Suporte</h4>
+        <a href="index.html#faq">Dúvidas frequentes</a>
+        <a href="https://instructiva.cademi.com.br/auth/login?redirect=%2Foffice%2Fusuario%2Fperfil%2Fcompras%2F21549397" target="_blank" rel="noopener">Área do aluno</a>
+        <a href="https://wa.me/5544997085134?text=Oi%2C%20Let%C3%ADcia%21%20Vim%20pelo%20site%20da%20Escola%20Instructiva%20e%20preciso%20de%20ajuda." target="_blank" rel="noopener">Falar com a Letícia (WhatsApp)</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 ESCOLA INSTRUCTIVA · TODOS OS DIREITOS RESERVADOS</p>
+    </div>
+  </div>
+</footer>
+<script src="js/popup.js"></script>
+<script>
+  var grid = document.getElementById('courseGrid');
+  var cards = Array.from(grid.children);
+  var filterBar = document.getElementById('filterBar');
+  var searchInput = document.getElementById('searchInput');
+  var emptyState = document.getElementById('emptyState');
+  var activeFilter = 'all';
+
+  function applyFilters(){
+    var q = searchInput.value.trim().toLowerCase();
+    var visibleCount = 0;
+    cards.forEach(function(card){
+      var matchesCat = (activeFilter === 'all') || (card.dataset.cat === activeFilter);
+      var matchesSearch = !q || card.dataset.title.indexOf(q) !== -1;
+      var show = matchesCat && matchesSearch;
+      card.style.display = show ? '' : 'none';
+      if(show) visibleCount++;
+    });
+    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  filterBar.addEventListener('click', function(e){
+    if(e.target.tagName !== 'BUTTON') return;
+    activeFilter = e.target.dataset.filter;
+    Array.from(filterBar.children).forEach(function(b){ b.classList.remove('active'); });
+    e.target.classList.add('active');
+    applyFilters();
+  });
+  searchInput.addEventListener('input', applyFilters);
+
+  // se a URL vier com ?cat=NomeDaCategoria, ja abre filtrado nela
+  var urlParams = new URLSearchParams(window.location.search);
+  var catParam = urlParams.get('cat');
+  if(catParam){
+    var matchBtn = Array.from(filterBar.children).find(function(b){ return b.dataset.filter === catParam; });
+    if(matchBtn){
+      activeFilter = catParam;
+      Array.from(filterBar.children).forEach(function(b){ b.classList.remove('active'); });
+      matchBtn.classList.add('active');
+      applyFilters();
+      matchBtn.scrollIntoView({block:'nearest', inline:'center'});
+    }
+  }
+</script>
+
+</body>
+</html>

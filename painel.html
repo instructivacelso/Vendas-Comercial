@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel — Escola Instructiva</title>
+<link rel="icon" href="assets/img/favicon.ico">
+<style>
+  @font-face{ font-family:'Manrope'; font-weight:700; src:url('assets/fonts/manrope-latin-700-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'Manrope'; font-weight:800; src:url('assets/fonts/manrope-latin-800-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'Inter'; font-weight:400; src:url('assets/fonts/inter-latin-400-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'Inter'; font-weight:600; src:url('assets/fonts/inter-latin-600-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'Inter'; font-weight:700; src:url('assets/fonts/inter-latin-700-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'JetBrains Mono'; font-weight:500; src:url('assets/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2'); font-display:swap; }
+  @font-face{ font-family:'JetBrains Mono'; font-weight:700; src:url('assets/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-display:swap; }
+
+  :root{
+    --ink:#08090A; --panel:#0F1113; --panel-2:#15181B; --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+    --orange:#F97316; --orange-bright:#FF9A4D; --green:#22C55E; --red:#EF4444;
+    --text:#ECECEA; --muted:#8B8F94; --muted-2:#5B5F64;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--ink); color:var(--text); font-family:'Inter',system-ui,sans-serif; font-size:15px; line-height:1.5; min-height:100vh;
+    background-image:radial-gradient(ellipse 60% 40% at 50% -5%, rgba(249,115,22,.08), transparent 60%); }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:1220px; margin:0 auto; padding:26px 20px 70px; }
+  .mono{ font-family:var(--mono); }
+  .lbl{ font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+
+  /* topo */
+  .top{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:26px; }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand img{ width:36px; height:36px; border-radius:9px; object-fit:contain; background:#fff; padding:3px; }
+  .brand .bt{ font-family:'Manrope',sans-serif; font-weight:800; font-size:18px; letter-spacing:-.02em; }
+  .brand .bt span{ color:var(--orange); }
+  .brand .sig{ display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .brand .sig .dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.6s ease-in-out infinite; }
+  .brand .sig span{ font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted-2); }
+  @keyframes blink{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  .top-actions{ display:flex; gap:9px; flex-wrap:wrap; }
+  .btn{ font-size:13px; font-weight:600; padding:9px 14px; border-radius:9px; border:1px solid var(--line-2); background:var(--panel-2); color:var(--text); cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:7px; }
+  .btn:hover{ border-color:var(--orange); }
+  .btn-primary{ background:var(--orange); border-color:var(--orange); color:#fff; }
+  .btn-primary:hover{ background:#e0640c; }
+
+  /* login */
+  .login{ max-width:390px; margin:13vh auto 0; background:var(--panel); border:1px solid var(--line-2); border-radius:16px; padding:34px; }
+  .login .lbl{ margin-bottom:14px; display:block; }
+  .login h2{ font-family:'Manrope',sans-serif; font-size:22px; font-weight:800; margin-bottom:6px; }
+  .login p{ color:var(--muted); font-size:14px; margin-bottom:22px; }
+  .login input{ width:100%; padding:13px 15px; border-radius:11px; border:1px solid var(--line-2); background:var(--ink); color:var(--text); font-size:15px; margin-bottom:14px; }
+  .login input:focus{ outline:none; border-color:var(--orange); }
+  .login .btn-primary{ width:100%; justify-content:center; padding:13px; font-size:15px; }
+  .login .err{ color:#ff6b6b; font-size:13px; margin-top:10px; min-height:16px; }
+
+  /* KPIs */
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:16px; }
+  .kpi{ background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:17px 18px 15px; position:relative; overflow:hidden; }
+  .kpi .khead{ display:flex; align-items:center; justify-content:space-between; }
+  .kpi .value{ font-family:'Manrope',sans-serif; font-size:34px; font-weight:800; margin-top:8px; letter-spacing:-.03em; line-height:1; }
+  .kpi .sub{ font-family:var(--mono); font-size:11.5px; color:var(--muted-2); margin-top:8px; letter-spacing:.3px; }
+  .kpi .spark{ height:26px; width:74px; }
+  .kpi.accent{ background:linear-gradient(180deg, rgba(249,115,22,.10), rgba(249,115,22,0) 60%), var(--panel); border-color:rgba(249,115,22,.25); }
+
+  /* grid metricas */
+  .metrics{ display:grid; grid-template-columns:1.55fr 1fr; gap:13px; margin-bottom:22px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:18px 20px; }
+  .card .chead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .card .chead .big{ font-family:'Manrope',sans-serif; font-weight:800; font-size:18px; }
+  .scope{ width:100%; height:auto; display:block; }
+  /* funil */
+  .funnel{ display:flex; flex-direction:column; gap:12px; }
+  .fstep .frow{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+  .fstep .fname{ font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+  .fstep .fval{ font-family:'Manrope',sans-serif; font-weight:800; font-size:17px; }
+  .fstep .fpct{ font-family:var(--mono); font-size:11px; color:var(--muted-2); margin-left:8px; }
+  .fstep .fbar{ height:9px; border-radius:100px; background:var(--panel-2); overflow:hidden; }
+  .fstep .ffill{ height:100%; border-radius:100px; background:linear-gradient(90deg,var(--orange),var(--orange-bright)); transition:width .6s cubic-bezier(.2,.7,.2,1); }
+  .fstep.green .ffill{ background:linear-gradient(90deg,#16a34a,var(--green)); }
+
+  /* tabs */
+  .tabs{ display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid var(--line); }
+  .tab{ background:transparent; border:none; color:var(--muted); font-family:'Manrope',sans-serif; font-weight:700; font-size:14.5px; padding:11px 18px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:.15s; display:inline-flex; align-items:center; gap:8px; }
+  .tab:hover{ color:var(--text); }
+  .tab.active{ color:var(--orange); border-bottom-color:var(--orange); }
+  .tab .cnt{ font-family:var(--mono); font-size:11px; background:var(--panel-2); border:1px solid var(--line); border-radius:100px; padding:1px 8px; color:var(--muted); }
+  .tab.active .cnt{ color:var(--orange); border-color:rgba(249,115,22,.3); }
+
+  /* filtros */
+  .filters{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .filters input[type=text]{ flex:1; min-width:220px; padding:11px 14px; border-radius:10px; border:1px solid var(--line-2); background:var(--panel); color:var(--text); font-size:14px; }
+  .filters input:focus, .filters select:focus{ outline:none; border-color:var(--orange); }
+  .filters select{ padding:11px 12px; border-radius:10px; border:1px solid var(--line-2); background:var(--panel); color:var(--text); font-size:14px; cursor:pointer; }
+  .count-line{ font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-bottom:12px; letter-spacing:.3px; }
+  .count-line b{ color:var(--text); }
+
+  /* tabela */
+  .table-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:15px; overflow:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:840px; }
+  th{ text-align:left; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; padding:15px 16px; border-bottom:1px solid var(--line); white-space:nowrap; cursor:pointer; user-select:none; }
+  th:hover{ color:var(--text); }
+  th .arrow{ opacity:.6; font-size:9px; color:var(--orange); }
+  td{ padding:14px 16px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle; }
+  tr:last-child td{ border-bottom:none; }
+  tbody tr:hover td{ background:rgba(249,115,22,.045); }
+  .lead-name{ font-weight:700; }
+  .lead-date{ color:var(--muted); font-family:var(--mono); font-size:12px; white-space:nowrap; }
+  .lead-phone{ font-family:var(--mono); font-size:13px; }
+  .lead-src{ color:var(--muted-2); font-size:12px; font-family:var(--mono); }
+  .tag{ display:inline-block; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:100px; white-space:nowrap; }
+  .tag-tec{ background:rgba(249,115,22,.14); color:var(--orange); }
+  .tag-ini{ background:rgba(255,255,255,.08); color:var(--muted); }
+  .tag-na{ background:transparent; color:var(--muted-2); border:1px dashed var(--line-2); }
+  .acts{ display:flex; gap:7px; white-space:nowrap; }
+  .icon-btn{ width:33px; height:33px; border-radius:9px; border:1px solid var(--line-2); background:var(--panel-2); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:.15s; font-size:14px; }
+  .icon-btn:hover{ border-color:var(--orange); transform:translateY(-1px); }
+  .icon-btn.wa:hover{ border-color:var(--green); }
+  .sale-status{ display:inline-block; padding:3px 11px; border-radius:100px; font-size:12px; font-weight:600; }
+  .sale-status.paid{ background:rgba(34,197,94,.14); color:var(--green); }
+  .sale-status.refunded,.sale-status.chargedback{ background:rgba(239,68,68,.14); color:var(--red); }
+  .sale-status.waiting_payment,.sale-status.desconhecido{ background:rgba(249,115,22,.14); color:var(--orange); }
+  .sale-val{ font-family:'Manrope',sans-serif; font-weight:800; }
+  .empty{ text-align:center; padding:54px 20px; color:var(--muted); }
+  .empty b{ color:var(--text); }
+
+  .toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--orange); color:#fff; font-weight:600; font-size:13.5px; padding:11px 18px; border-radius:10px; opacity:0; pointer-events:none; transition:.25s; z-index:50; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .hidden{ display:none !important; }
+
+  @media (max-width:860px){ .metrics{ grid-template-columns:1fr; } }
+  @media (max-width:720px){ .kpis{ grid-template-columns:repeat(2,1fr); } .kpi .value{ font-size:28px; } .kpi .spark{ display:none; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView" class="login">
+  <span class="lbl">● Acesso restrito</span>
+  <h2>Painel de controle</h2>
+  <p>Digite a senha para ver tráfego, leads e vendas do site.</p>
+  <input type="password" id="senhaInput" placeholder="Senha" autocomplete="current-password">
+  <button class="btn-primary btn" id="entrarBtn">Entrar no painel</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<!-- PAINEL -->
+<div id="panelView" class="wrap hidden">
+  <div class="top">
+    <div class="brand">
+      <img src="assets/img/logo-instructiva.png" alt="">
+      <div>
+        <div class="bt">Escola <span>Instructiva</span></div>
+        <div class="sig"><span class="dot"></span><span>Painel ao vivo</span></div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="exportBtn">⬇ Exportar CSV</button>
+      <button class="btn" id="refreshBtn">↻ Atualizar</button>
+      <button class="btn" id="logoutBtn">Sair</button>
+    </div>
+  </div>
+
+  <!-- KPIs principais -->
+  <div class="kpis">
+    <div class="kpi accent">
+      <div class="khead"><span class="lbl">Visitantes</span><svg class="spark" id="sparkVisit" viewBox="0 0 74 26" preserveAspectRatio="none"></svg></div>
+      <div class="value" id="kpiVisit">—</div>
+      <div class="sub" id="kpiVisitSub">—</div>
+    </div>
+    <div class="kpi">
+      <div class="khead"><span class="lbl">Leads</span></div>
+      <div class="value" id="kpiTotal">—</div>
+      <div class="sub" id="kpiTotalSub">—</div>
+    </div>
+    <div class="kpi">
+      <div class="khead"><span class="lbl">Conversão</span></div>
+      <div class="value" id="kpiConv">—</div>
+      <div class="sub" id="kpiConvSub">—</div>
+    </div>
+    <div class="kpi">
+      <div class="khead"><span class="lbl">Popup exibido</span></div>
+      <div class="value" id="kpiPopup">—</div>
+      <div class="sub">vezes que apareceu</div>
+    </div>
+  </div>
+
+  <!-- grafico + funil -->
+  <div class="metrics">
+    <div class="card">
+      <div class="chead"><span class="lbl">Tráfego · últimos 14 dias</span><span class="lbl" id="scopeTotal" style="color:var(--orange)"></span></div>
+      <svg class="scope" id="scope" viewBox="0 0 720 240" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="card">
+      <div class="chead"><span class="lbl">Funil · visita até venda</span></div>
+      <div class="funnel" id="funnel"></div>
+    </div>
+  </div>
+
+  <!-- abas -->
+  <div class="tabs">
+    <button class="tab active" id="tabBtnLeads">Leads <span class="cnt" id="tabCntLeads">0</span></button>
+    <button class="tab" id="tabBtnVendas">Vendas <span class="cnt" id="tabCntVendas">0</span></button>
+  </div>
+
+  <div id="tabLeads">
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Buscar por nome, email ou telefone...">
+      <select id="periodSelect">
+        <option value="all">Todo o período</option>
+        <option value="today">Hoje</option>
+        <option value="7">Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+      </select>
+      <select id="techSelect">
+        <option value="all">Todos</option>
+        <option value="sim">Já são técnicos</option>
+        <option value="nao">Estão começando</option>
+        <option value="nao_informado">Não informado</option>
+      </select>
+    </div>
+    <div class="count-line" id="countLine"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="createdAt">Data <span class="arrow" id="ar-createdAt">▼</span></th>
+            <th data-sort="name">Nome <span class="arrow" id="ar-name"></span></th>
+            <th data-sort="email">Email <span class="arrow" id="ar-email"></span></th>
+            <th data-sort="phone">Telefone <span class="arrow" id="ar-phone"></span></th>
+            <th data-sort="isTechnician">Perfil <span class="arrow" id="ar-isTechnician"></span></th>
+            <th data-sort="source">Origem <span class="arrow" id="ar-source"></span></th>
+            <th>Recuperar</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty hidden" id="emptyState">Nenhum lead encontrado com esse filtro.</div>
+    </div>
+  </div>
+
+  <div id="tabVendas" class="hidden">
+    <div class="kpis">
+      <div class="kpi accent"><div class="khead"><span class="lbl">Faturamento</span></div><div class="value" id="kpiFat">—</div><div class="sub" id="kpiFatSub">vendas pagas</div></div>
+      <div class="kpi"><div class="khead"><span class="lbl">Vendas pagas</span></div><div class="value" id="kpiVendas">—</div><div class="sub">confirmadas</div></div>
+      <div class="kpi"><div class="khead"><span class="lbl">Ticket médio</span></div><div class="value" id="kpiTicket">—</div><div class="sub">por venda paga</div></div>
+      <div class="kpi"><div class="khead"><span class="lbl">Reembolsos</span></div><div class="value" id="kpiReemb">—</div><div class="sub">estornos e chargebacks</div></div>
+    </div>
+    <div class="count-line" id="countLineVendas"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Contato</th><th>Valor</th><th>Pgto</th><th>Status</th></tr></thead>
+        <tbody id="tbodyVendas"></tbody>
+      </table>
+      <div class="empty hidden" id="emptyVendas">Nenhuma venda registrada ainda. Assim que o webhook da Greenn estiver ativo, as vendas aparecem aqui automaticamente.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var SENHA_KEY = 'instructiva_painel_senha';
+  var allLeads = [], allSales = [], popupViews = 0, visits = { total:0, byDay:{} };
+  var sortKey = 'createdAt', sortDir = -1;
+  var loginView = document.getElementById('loginView');
+  var panelView = document.getElementById('panelView');
+
+  function fmtDate(iso){ try{ return new Date(iso).toLocaleString('pt-BR',{ timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }catch(e){ return iso||'—'; } }
+  function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
+  function waNumber(phone){ var d=onlyDigits(phone); if(!d) return ''; if(d.length<=11 && d.indexOf('55')!==0) d='55'+d; return d; }
+  function sourcePage(src){ if(!src) return '—'; var s=src.replace('popup_saida_',''); if(s===''||s==='/') return '/ (home)'; return s; }
+  function techTag(v){ if(v==='sim') return '<span class="tag tag-tec">Já é técnico</span>'; if(v==='nao') return '<span class="tag tag-ini">Começando</span>'; return '<span class="tag tag-na">Não informado</span>'; }
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },1800); }
+  function brDayKey(date){ return new Intl.DateTimeFormat('en-CA',{ timeZone:'America/Sao_Paulo', year:'numeric', month:'2-digit', day:'2-digit' }).format(date); }
+  function sumVisits(days){ var sum=0, now=Date.now(); for(var i=0;i<days;i++){ var k=brDayKey(new Date(now-i*86400000)); sum+=(visits.byDay||{})[k]||0; } return sum; }
+  function fmtMoney(v){ var n=parseFloat(v); if(isNaN(n)) n=0; return 'R$ '+n.toLocaleString('pt-BR',{ minimumFractionDigits:2, maximumFractionDigits:2 }); }
+  function statusLabel(s){ return ({ paid:'Paga', refunded:'Reembolsada', chargedback:'Chargeback', waiting_payment:'Aguardando', desconhecido:'—' })[s]||s; }
+
+  function load(senha){
+    document.getElementById('loginErr').textContent='Carregando...';
+    fetch('/api/dashboard?senha='+encodeURIComponent(senha))
+      .then(function(r){ if(r.status===401) throw new Error('senha'); return r.json(); })
+      .then(function(data){
+        allLeads=(data.leads||[]).slice(); allSales=(data.sales||[]).slice();
+        popupViews=data.popupViews||0; visits=data.visits||{ total:0, byDay:{} }; if(!visits.byDay) visits.byDay={};
+        try{ sessionStorage.setItem(SENHA_KEY,senha); }catch(e){}
+        loginView.classList.add('hidden'); panelView.classList.remove('hidden');
+        render(); renderSales(); renderChart(); renderFunnel();
+        document.getElementById('tabCntLeads').textContent=allLeads.length;
+        document.getElementById('tabCntVendas').textContent=allSales.length;
+      })
+      .catch(function(err){
+        if(err.message==='senha'){ document.getElementById('loginErr').textContent='Senha incorreta.'; try{ sessionStorage.removeItem(SENHA_KEY); }catch(e){} }
+        else document.getElementById('loginErr').textContent='Erro ao carregar. Tente de novo.';
+      });
+  }
+
+  function computeKpis(){
+    var now=Date.now(), d1=864e5, d7=7*d1, leadsHoje=0, leadsSemana=0;
+    allLeads.forEach(function(l){ var t=new Date(l.createdAt).getTime(); if(now-t<=d1) leadsHoje++; if(now-t<=d7) leadsSemana++; });
+    var totalVisit=(visits&&visits.total)||0;
+    var visitHoje=(visits.byDay||{})[brDayKey(new Date())]||0;
+    document.getElementById('kpiVisit').textContent=totalVisit.toLocaleString('pt-BR');
+    document.getElementById('kpiVisitSub').textContent=visitHoje+' hoje · '+sumVisits(7)+' em 7 dias';
+    document.getElementById('kpiTotal').textContent=allLeads.length;
+    document.getElementById('kpiTotalSub').textContent=leadsHoje+' hoje · '+leadsSemana+' em 7 dias';
+    document.getElementById('kpiPopup').textContent=popupViews.toLocaleString('pt-BR');
+    if(totalVisit>0){
+      document.getElementById('kpiConv').textContent=((allLeads.length/totalVisit)*100).toFixed(1)+'%';
+      document.getElementById('kpiConvSub').textContent=allLeads.length+' leads · '+totalVisit+' visitantes';
+    } else { document.getElementById('kpiConv').textContent='—'; document.getElementById('kpiConvSub').textContent='sem visitas ainda'; }
+  }
+
+  // ---- grafico osciloscopio (14 dias) ----
+  function last14(){ var out=[], now=Date.now(); for(var i=13;i>=0;i--){ var d=new Date(now-i*86400000); out.push({ d:d, v:(visits.byDay||{})[brDayKey(d)]||0 }); } return out; }
+  function renderChart(){
+    var data=last14(), W=720, H=240, padL=8, padR=8, padT=16, padB=26;
+    var iw=W-padL-padR, ih=H-padT-padB;
+    var max=1; data.forEach(function(p){ if(p.v>max) max=p.v; });
+    var n=data.length;
+    var xs=function(i){ return padL + (n===1?iw/2:(i/(n-1))*iw); };
+    var ys=function(v){ return padT + ih - (v/max)*ih; };
+    var line='', area='M '+xs(0)+' '+ys(data[0].v);
+    data.forEach(function(p,i){ var x=xs(i),y=ys(p.v); line+=(i===0?'M ':'L ')+x+' '+y+' '; if(i>0) area+=' L '+x+' '+y; });
+    area+=' L '+xs(n-1)+' '+(padT+ih)+' L '+xs(0)+' '+(padT+ih)+' Z';
+    // grid horizontal (4 linhas)
+    var grid=''; for(var g=0;g<=4;g++){ var gy=padT+(g/4)*ih; grid+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="rgba(255,255,255,.05)" stroke-width="1"/>'; }
+    // dots + labels (a cada ~3 dias)
+    var dots='', labels='';
+    data.forEach(function(p,i){ var x=xs(i),y=ys(p.v); dots+='<circle cx="'+x+'" cy="'+y+'" r="'+(p.v>0?3:2)+'" fill="#08090A" stroke="#F97316" stroke-width="2"/>';
+      if(i%3===0 || i===n-1){ var dd=p.d.getDate(), mm=p.d.getMonth()+1; labels+='<text x="'+x+'" y="'+(H-8)+'" fill="#5B5F64" font-size="10" font-family="monospace" text-anchor="middle">'+(dd<10?'0':'')+dd+'/'+(mm<10?'0':'')+mm+'</text>'; } });
+    var svg=''+
+      '<defs><linearGradient id="scopeFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F97316" stop-opacity=".35"/><stop offset="1" stop-color="#F97316" stop-opacity="0"/></linearGradient>'+
+      '<filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'+
+      grid+
+      '<path d="'+area+'" fill="url(#scopeFill)"/>'+
+      '<path d="'+line+'" fill="none" stroke="#FF9A4D" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow)"/>'+
+      dots+labels;
+    document.getElementById('scope').innerHTML=svg;
+    document.getElementById('scopeTotal').textContent=sumVisits(14)+' visitas';
+    // sparkline do KPI
+    var sd=data.slice(-10), sm=1; sd.forEach(function(p){ if(p.v>sm) sm=p.v; });
+    var sp=''; sd.forEach(function(p,i){ var x=(i/(sd.length-1))*74, y=26-(p.v/sm)*22-2; sp+=(i===0?'M ':'L ')+x.toFixed(1)+' '+y.toFixed(1)+' '; });
+    document.getElementById('sparkVisit').innerHTML='<path d="'+sp+'" fill="none" stroke="#F97316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+
+  // ---- funil ----
+  function renderFunnel(){
+    var v=(visits.total)||0, pop=popupViews||0, leads=allLeads.length, vendas=allSales.filter(function(s){ return s.status==='paid'; }).length;
+    var base=Math.max(1,v);
+    var steps=[
+      { name:'Visitantes', val:v, cls:'' },
+      { name:'Viram o popup', val:pop, cls:'' },
+      { name:'Viraram lead', val:leads, cls:'' },
+      { name:'Compraram', val:vendas, cls:'green' }
+    ];
+    document.getElementById('funnel').innerHTML=steps.map(function(s){
+      var pct=v>0 ? (s.val/base*100) : 0;
+      var pctTxt=v>0 ? (s.val/base*100).toFixed(s.val/base*100<10?1:0)+'%' : '—';
+      return '<div class="fstep '+s.cls+'">'+
+        '<div class="frow"><span class="fname">'+s.name+'</span><span><span class="fval">'+s.val.toLocaleString('pt-BR')+'</span><span class="fpct">'+pctTxt+'</span></span></div>'+
+        '<div class="fbar"><div class="ffill" style="width:'+Math.max(pct,1.5)+'%"></div></div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function getFiltered(){
+    var q=document.getElementById('searchInput').value.trim().toLowerCase();
+    var period=document.getElementById('periodSelect').value, tech=document.getElementById('techSelect').value;
+    var now=Date.now(), cutoff=null;
+    if(period==='today') cutoff=now-864e5; else if(period==='7') cutoff=now-7*864e5; else if(period==='30') cutoff=now-30*864e5;
+    var rows=allLeads.filter(function(l){
+      if(cutoff && new Date(l.createdAt).getTime()<cutoff) return false;
+      if(tech!=='all' && (l.isTechnician||'nao_informado')!==tech) return false;
+      if(q){ if((l.name+' '+l.email+' '+l.phone).toLowerCase().indexOf(q)===-1) return false; }
+      return true;
+    });
+    rows.sort(function(a,b){ var va,vb; if(sortKey==='createdAt'){ va=new Date(a.createdAt).getTime()||0; vb=new Date(b.createdAt).getTime()||0; } else { va=(''+(a[sortKey]||'')).toLowerCase(); vb=(''+(b[sortKey]||'')).toLowerCase(); } if(va<vb) return -sortDir; if(va>vb) return sortDir; return 0; });
+    return rows;
+  }
+
+  function render(){
+    computeKpis();
+    var rows=getFiltered(), tbody=document.getElementById('tbody'), empty=document.getElementById('emptyState');
+    document.getElementById('countLine').innerHTML='Mostrando <b>'+rows.length+'</b> de <b>'+allLeads.length+'</b> leads';
+    ['createdAt','name','email','phone','isTechnician','source'].forEach(function(k){ var el=document.getElementById('ar-'+k); if(el) el.textContent=(k===sortKey)?(sortDir===-1?'▼':'▲'):''; });
+    if(rows.length===0){ tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML=rows.map(function(l){
+      var wa=waNumber(l.phone);
+      var waMsg=encodeURIComponent('Olá '+(l.name||'').split(' ')[0]+'! Aqui é da Escola Instructiva. Vi que você deixou seu contato no nosso site e queria te ajudar a escolher o curso certo pra você. Posso te explicar melhor?');
+      var waLink=wa?'https://wa.me/'+wa+'?text='+waMsg:'';
+      var mailLink='mailto:'+encodeURIComponent(l.email||'')+'?subject='+encodeURIComponent('Escola Instructiva — sobre seu interesse nos cursos');
+      return '<tr>'+
+        '<td class="lead-date">'+fmtDate(l.createdAt)+'</td>'+
+        '<td class="lead-name">'+escapeHtml(l.name)+'</td>'+
+        '<td>'+escapeHtml(l.email)+'</td>'+
+        '<td class="lead-phone">'+escapeHtml(l.phone)+'</td>'+
+        '<td>'+techTag(l.isTechnician)+'</td>'+
+        '<td class="lead-src">'+escapeHtml(sourcePage(l.source))+'</td>'+
+        '<td><div class="acts">'+
+          (waLink?'<a class="icon-btn wa" href="'+waLink+'" target="_blank" title="Chamar no WhatsApp">💬</a>':'')+
+          '<a class="icon-btn" href="'+mailLink+'" title="Enviar email">✉</a>'+
+          '<button class="icon-btn" data-copy="'+escapeHtml(l.phone)+'" title="Copiar telefone">⧉</button>'+
+        '</div></td></tr>';
+    }).join('');
+    tbody.querySelectorAll('[data-copy]').forEach(function(btn){ btn.addEventListener('click',function(){ var v=btn.getAttribute('data-copy'); navigator.clipboard.writeText(v).then(function(){ toast('Telefone copiado'); }).catch(function(){ toast('Copie manualmente: '+v); }); }); });
+  }
+
+  function renderSales(){
+    var pagas=allSales.filter(function(s){ return s.status==='paid'; });
+    var reemb=allSales.filter(function(s){ return s.status==='refunded'||s.status==='chargedback'; });
+    var fat=pagas.reduce(function(a,s){ var n=parseFloat(s.amount); return a+(isNaN(n)?0:n); },0);
+    document.getElementById('kpiFat').textContent=fmtMoney(fat);
+    document.getElementById('kpiFatSub').textContent=pagas.length+' venda(s) paga(s)';
+    document.getElementById('kpiVendas').textContent=pagas.length;
+    document.getElementById('kpiTicket').textContent=pagas.length?fmtMoney(fat/pagas.length):'—';
+    document.getElementById('kpiReemb').textContent=reemb.length;
+    var tbody=document.getElementById('tbodyVendas'), empty=document.getElementById('emptyVendas');
+    document.getElementById('countLineVendas').innerHTML='Mostrando <b>'+allSales.length+'</b> venda(s) registrada(s)';
+    if(!allSales.length){ tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML=allSales.map(function(s){
+      var contato=''; if(s.email) contato+=escapeHtml(s.email); if(s.phone) contato+=(contato?'<br>':'')+escapeHtml(s.phone);
+      return '<tr><td class="lead-date">'+fmtDate(s.createdAt)+'</td><td>'+escapeHtml(s.product||'—')+'</td><td class="lead-name">'+escapeHtml(s.name||'—')+'</td><td>'+(contato||'—')+'</td><td class="sale-val">'+fmtMoney(s.amount)+'</td><td>'+escapeHtml(s.method||'—')+'</td><td><span class="sale-status '+(s.status||'desconhecido')+'">'+statusLabel(s.status)+'</span></td></tr>';
+    }).join('');
+  }
+
+  function exportCSV(){
+    var rows=getFiltered(); if(!rows.length){ toast('Nada pra exportar'); return; }
+    var lines=[['Data','Nome','Email','Telefone','Perfil','Origem'].join(';')];
+    rows.forEach(function(l){ lines.push([fmtDate(l.createdAt),l.name,l.email,l.phone,(l.isTechnician||''),sourcePage(l.source)].map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }).join(';')); });
+    var blob=new Blob(['\ufeff'+lines.join('\r\n')],{ type:'text/csv;charset=utf-8;' });
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leads-instructiva-'+new Date().toISOString().slice(0,10)+'.csv'; a.click(); toast('CSV exportado');
+  }
+
+  function switchTab(which){
+    var isV=which==='vendas';
+    document.getElementById('tabLeads').classList.toggle('hidden',isV);
+    document.getElementById('tabVendas').classList.toggle('hidden',!isV);
+    document.getElementById('tabBtnLeads').classList.toggle('active',!isV);
+    document.getElementById('tabBtnVendas').classList.toggle('active',isV);
+    document.getElementById('exportBtn').style.display=isV?'none':'';
+  }
+
+  document.getElementById('entrarBtn').addEventListener('click',function(){ var s=document.getElementById('senhaInput').value; if(!s){ document.getElementById('loginErr').textContent='Digite a senha.'; return; } load(s); });
+  document.getElementById('senhaInput').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('entrarBtn').click(); });
+  document.getElementById('searchInput').addEventListener('input',render);
+  document.getElementById('periodSelect').addEventListener('change',render);
+  document.getElementById('techSelect').addEventListener('change',render);
+  document.getElementById('refreshBtn').addEventListener('click',function(){ var s=sessionStorage.getItem(SENHA_KEY); if(s) load(s); });
+  document.getElementById('exportBtn').addEventListener('click',exportCSV);
+  document.getElementById('logoutBtn').addEventListener('click',function(){ try{ sessionStorage.removeItem(SENHA_KEY); }catch(e){} panelView.classList.add('hidden'); loginView.classList.remove('hidden'); document.getElementById('senhaInput').value=''; document.getElementById('loginErr').textContent=''; });
+  document.querySelectorAll('th[data-sort]').forEach(function(th){ th.addEventListener('click',function(){ var k=th.getAttribute('data-sort'); if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=(k==='createdAt')?-1:1; } render(); }); });
+  document.getElementById('tabBtnLeads').addEventListener('click',function(){ switchTab('leads'); });
+  document.getElementById('tabBtnVendas').addEventListener('click',function(){ switchTab('vendas'); });
+
+  var saved=null; try{ saved=sessionStorage.getItem(SENHA_KEY); }catch(e){}
+  if(saved) load(saved);
+})();
+</script>
+</body>
+</html>
