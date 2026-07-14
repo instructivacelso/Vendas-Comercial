@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { LayoutDashboard, MessageSquare, Send, Users } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Send, Users, Hash, FileText, Zap, Plug } from "lucide-react";
 import { api, setToken, getToken } from "./api.js";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -26,21 +26,42 @@ export default function App() {
     setUser(null);
   };
 
-  const nav = [
+  const mainNav = [
     { id: "dashboard", label: "Painel", icon: LayoutDashboard },
     { id: "inbox", label: "Conversas", icon: MessageSquare },
     { id: "campaigns", label: "Campanhas", icon: Send },
   ];
-  if (user.role === "admin") nav.push({ id: "admin", label: "Equipe e números", icon: Users });
+  const adminNav = [
+    { id: "conexao", label: "Conexão Meta", icon: Plug },
+    { id: "numbers", label: "Números", icon: Hash },
+    { id: "vendedores", label: "Vendedores", icon: Users },
+    { id: "templates", label: "Templates", icon: FileText },
+    { id: "respostas", label: "Respostas rápidas", icon: Zap },
+  ];
 
   const heads = {
     dashboard: ["Painel", "Visão geral das vendas em tempo real."],
     inbox: ["Conversas", "Atendimento por número."],
     campaigns: ["Campanhas de disparo", "Envios por template aprovado."],
-    admin: ["Equipe e números", "Vendedores, números e templates."],
+    conexao: ["Conexão com a Meta", "Conecte o WhatsApp oficial da sua equipe."],
+    numbers: ["Números", "Cadastre e gerencie seus números oficiais."],
+    vendedores: ["Vendedores", "Acessos, número atribuído e permissão de disparo."],
+    templates: ["Templates", "Modelos de mensagem aprovados pela Meta."],
+    respostas: ["Respostas rápidas", "Atalhos de texto para a equipe."],
   };
-  const [title, sub] = heads[view];
+  const [title, sub] = heads[view] || heads.dashboard;
   const avatarLetter = (user.name || "?").trim()[0]?.toUpperCase() || "?";
+
+  const adminSections = { conexao: "conexao", numbers: "numbers", vendedores: "team", templates: "templates", respostas: "replies" };
+
+  const NavBtn = (n) => {
+    const Icon = n.icon;
+    return (
+      <button key={n.id} className={view === n.id ? "active" : ""} onClick={() => setView(n.id)}>
+        <Icon size={18} /> {n.label}
+      </button>
+    );
+  };
 
   return (
     <div className="shell">
@@ -50,14 +71,13 @@ export default function App() {
           <div className="wm"><b>Instructiva</b><span>Vendas</span></div>
         </div>
         <nav className="nav">
-          {nav.map((n) => {
-            const Icon = n.icon;
-            return (
-              <button key={n.id} className={view === n.id ? "active" : ""} onClick={() => setView(n.id)}>
-                <Icon size={18} /> {n.label}
-              </button>
-            );
-          })}
+          {mainNav.map(NavBtn)}
+          {user.role === "admin" && (
+            <>
+              <div className="nav-label">Gestão</div>
+              {adminNav.map(NavBtn)}
+            </>
+          )}
         </nav>
         <div className="spacer" />
         <div className="userbox">
@@ -83,7 +103,7 @@ export default function App() {
           {view === "dashboard" && <Dashboard user={user} onGo={setView} />}
           {view === "inbox" && <Inbox user={user} />}
           {view === "campaigns" && <Campaigns user={user} />}
-          {view === "admin" && user.role === "admin" && <Admin />}
+          {adminSections[view] && user.role === "admin" && <Admin section={adminSections[view]} />}
         </div>
       </div>
     </div>

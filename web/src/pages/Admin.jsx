@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
 import ConnectModal from "./Connect.jsx";
 
-export default function Admin() {
-  const [tab, setTab] = useState("team");
+export default function Admin({ section }) {
+  const [tab, setTab] = useState(section || "team");
   const [users, setUsers] = useState([]);
   const [numbers, setNumbers] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [tplError, setTplError] = useState("");
   const [replies, setReplies] = useState([]);
   const [modal, setModal] = useState(null); // {type:'user'|'number'|'reply', data}
+
+  useEffect(() => { if (section) setTab(section); }, [section]);
 
   const load = async () => {
     setUsers(await api.get("/api/admin/users").catch(() => []));
@@ -30,11 +32,6 @@ export default function Admin() {
 
   return (
     <div>
-      <div className="tabs">
-        {[["team", "Vendedores"], ["numbers", "Números"], ["templates", "Templates"], ["replies", "Respostas rápidas"], ["conexao", "Conexão"]].map(([id, label]) => (
-          <button key={id} className={"btn " + (tab === id ? "" : "subtle") + " sm"} onClick={() => setTab(id)}>{label}</button>
-        ))}
-      </div>
 
       {tab === "team" && (
         <div className="card">
@@ -361,41 +358,73 @@ function ConnSettings() {
   const [connected, setConnected] = useState(false);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
-  useEffect(() => {
-    api.get("/api/config").then((c) => { setWabaId(c.wabaId || ""); setConnected(c.connected); }).catch(() => {});
-  }, []);
+  const reload = () => api.get("/api/config").then((c) => { setWabaId(c.wabaId || ""); setConnected(c.connected); }).catch(() => {});
+  useEffect(() => { reload(); }, []);
 
   const save = async () => {
     setMsg(""); setBusy(true);
     try {
       const r = await api.post("/api/admin/settings", { metaToken, wabaId });
-      setConnected(r.connected);
-      setWabaId(r.wabaId || "");
-      setMetaToken("");
-      setMsg("Salvo! Credenciais atualizadas.");
+      setConnected(r.connected); setWabaId(r.wabaId || ""); setMetaToken("");
+      setMsg("ok");
     } catch (e) { setMsg(e.message); } finally { setBusy(false); }
   };
 
   return (
-    <div className="card" style={{ padding: 24, maxWidth: 620 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-        <h3 style={{ margin: 0, fontSize: 17 }}>Conexão com a Meta</h3>
-        <span className={"pill " + (connected ? "on" : "off")}>{connected ? "Conectado" : "Não conectado"}</span>
+    <div style={{ maxWidth: 760 }}>
+      {/* Status */}
+      <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14, marginBottom: 18,
+        borderLeft: `4px solid ${connected ? "var(--brand)" : "#d9c48a"}` }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, display: "grid", placeItems: "center",
+          background: connected ? "var(--green-soft)" : "var(--amber-soft)", color: connected ? "var(--green-ink)" : "var(--amber-ink)", fontSize: 22 }}>
+          {connected ? "✓" : "•"}
+        </div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>{connected ? "WhatsApp conectado" : "Ainda não conectado"}</div>
+          <div className="muted" style={{ fontSize: 13 }}>
+            {connected ? `Conta ${wabaId ? "· WABA " + wabaId : ""} pronta para enviar e receber.` : "Escolha um dos caminhos abaixo para conectar seu número oficial."}
+          </div>
+        </div>
       </div>
-      <p className="muted" style={{ marginTop: 4 }}>Cole aqui o token e o WABA ID da tela <b>WhatsApp → Configuração da API</b> no painel da Meta. Fica salvo no sistema — você não precisa mexer no Railway.</p>
 
-      <label>Identificação da conta (WABA ID)</label>
-      <input type="text" value={wabaId} onChange={(e) => setWabaId(e.target.value)} placeholder="Ex.: 123456789012345" />
-
-      <label>Token de acesso {connected && <span className="muted" style={{ fontWeight: 400 }}>· já salvo, preencha só para trocar</span>}</label>
-      <input type="password" value={metaToken} onChange={(e) => setMetaToken(e.target.value)} placeholder={connected ? "•••••••••• (deixe em branco para manter)" : "Cole o token aqui"} />
-
-      {msg && <div className={msg.startsWith("Salvo") ? "" : "error"} style={msg.startsWith("Salvo") ? { color: "var(--green-ink)", marginTop: 12, fontWeight: 600 } : {}}>{msg}</div>}
-
-      <div style={{ marginTop: 18 }}>
-        <button className="btn" onClick={save} disabled={busy}>{busy ? "Salvando…" : "Salvar conexão"}</button>
+      {/* Caminho 1: popup */}
+      <div className="card" style={{ padding: 22, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span className="step-num">1</span>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Conectar pela Meta <span className="pill on" style={{ marginLeft: 6 }}>recomendado</span></h3>
+        </div>
+        <p className="muted" style={{ marginTop: 0 }}>Abre o popup oficial do Facebook. Você escolhe ou cria seu número lá dentro e volta conectado — sem digitar código.</p>
+        <button className="btn" onClick={() => setShowPopup(true)}>Conectar pelo popup da Meta</button>
       </div>
+
+      {/* Caminho 2: manual */}
+      <div className="card" style={{ padding: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span className="step-num">2</span>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Ou colar o token manualmente</h3>
+        </div>
+        <p className="muted" style={{ marginTop: 0 }}>
+          No painel da Meta, vá em <b>WhatsApp → Configuração da API</b>, copie o <b>Token de acesso</b> e a <b>Identificação da conta (WABA ID)</b> e cole aqui. Fica salvo no sistema — não precisa mexer no Railway.
+        </p>
+
+        <label>Identificação da conta (WABA ID)</label>
+        <input type="text" value={wabaId} onChange={(e) => setWabaId(e.target.value)} placeholder="Ex.: 123456789012345" />
+
+        <label>Token de acesso {connected && <span className="muted" style={{ fontWeight: 400 }}>· já salvo, preencha só para trocar</span>}</label>
+        <input type="password" value={metaToken} onChange={(e) => setMetaToken(e.target.value)} placeholder={connected ? "•••••••••• (deixe em branco para manter)" : "Cole o token aqui"} />
+
+        {msg === "ok" && <div style={{ color: "var(--green-ink)", marginTop: 12, fontWeight: 600 }}>Salvo! Credenciais atualizadas.</div>}
+        {msg && msg !== "ok" && <div className="error">{msg}</div>}
+
+        <div style={{ marginTop: 18 }}>
+          <button className="btn" onClick={save} disabled={busy}>{busy ? "Salvando…" : "Salvar token"}</button>
+        </div>
+      </div>
+
+      {showPopup && <ConnectModal onClose={() => setShowPopup(false)} onConnected={() => { setShowPopup(false); reload(); }} />}
     </div>
   );
 }
+
