@@ -538,6 +538,16 @@ app.get("/api/admin/numbers", requireAuth, (req, res) => {
   );
 });
 
+// Salvar token e WABA pelo próprio sistema (sem mexer no Railway)
+app.post("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
+  const { metaToken, wabaId } = req.body || {};
+  const settings = readObject("settings");
+  if (typeof metaToken === "string" && metaToken.trim()) settings.metaToken = metaToken.trim();
+  if (typeof wabaId === "string") settings.wabaId = wabaId.trim();
+  writeObject("settings", settings);
+  res.json({ ok: true, connected: !!(settings.metaToken || process.env.META_TOKEN), wabaId: settings.wabaId || process.env.WABA_ID || "" });
+});
+
 // Config pública do front para o Embedded Signup (App ID e config são públicos).
 app.get("/api/config", requireAuth, requireAdmin, (req, res) => {
   const settings = readObject("settings");
